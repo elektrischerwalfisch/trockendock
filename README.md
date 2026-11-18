@@ -1,7 +1,5 @@
 # Trockendock
 
-> **Trockendock** · Author: elektrischerwalfisch · License: MIT · Version: see `VERSION`
-
 Local development platform for website projects: reusable **templates**, stack-specific **tooling**, and shared **infrastructure** (ports, link hub).
 
 Projects (ships) live under `$WEBSITES_ROOT/<project>/`.

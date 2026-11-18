@@ -29,7 +29,7 @@ After completing any piece of work, complete the relevant items below in the sam
 |---------------|-----------------------------------------|
 | Current Phase | **Phase 2 · Hardening & polish**        |
 | Next Phase    | Phase 3 · TBD                           |
-| Live Version  | `0.1.0` (see `VERSION`)                 |
+| Live Version  | `1.0.0` (see `VERSION`)                 |
 | Last Updated  | 2026-11-18                              |
 
 ---
