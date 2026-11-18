@@ -1,0 +1,14 @@
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+.vscode/
+.cursor/
+docs-archive/
+
+# Local path overrides (machine-specific)
+config/paths.env
+
+# Generated link hub (project ports / live URLs — regenerate via bin/generate-local-dev-index.sh)
+/trockendock.html
+

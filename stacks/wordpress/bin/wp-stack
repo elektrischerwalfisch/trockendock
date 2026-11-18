@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
+#
+# Trockendock — WordPress stack CLI (wp-stack)
+# Author: elektrischerwalfisch
+#
+# See LICENSE and VERSION at repository root.
+
+set -euo pipefail
+
+BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LIB_DIR="${BIN_DIR}/../lib"
+
+wp_stack_usage() {
+  cat <<'EOF'
+wp-stack — WordPress stack tooling (Trockendock)
+
+Usage:
+  wp-stack project create <folder> [options]
+  wp-stack db import <file> [options]
+  wp-stack urls replace [options]
+  wp-stack migrate [options]
+
+Run a subcommand with --help for details.
+EOF
+}
+
+main() {
+  local command="${1:-}"
+  local subcommand="${2:-}"
+
+  case "$command" in
+    ""|-h|--help|help)
+      wp_stack_usage
+      ;;
+    project)
+      case "$subcommand" in
+        create)
+          shift 2
+          # shellcheck source=../lib/project-create.sh
+          source "${LIB_DIR}/project-create.sh"
+          wp_stack_project_create "$@"
+          ;;
+        ""|-h|--help|help)
+          # shellcheck source=../lib/project-create.sh
+          source "${LIB_DIR}/project-create.sh"
+          wp_stack_project_create_usage
+          ;;
+        *)
+          wp_stack_usage
+          exit 1
+          ;;
+      esac
+      ;;
+    db)
+      case "$subcommand" in
+        import)
+          shift 2
+          # shellcheck source=../lib/db.sh
+          source "${LIB_DIR}/db.sh"
+          wp_stack_db_import "$@"
+          ;;
+        ""|-h|--help|help)
+          # shellcheck source=../lib/db.sh
+          source "${LIB_DIR}/db.sh"
+          wp_stack_db_import_usage
+          ;;
+        *)
+          wp_stack_usage
+          exit 1
+          ;;
+      esac
+      ;;
+    urls)
+      case "$subcommand" in
+        replace)
+          shift 2
+          # shellcheck source=../lib/urls.sh
+          source "${LIB_DIR}/urls.sh"
+          wp_stack_urls_replace "$@"
+          ;;
+        ""|-h|--help|help)
+          # shellcheck source=../lib/urls.sh
+          source "${LIB_DIR}/urls.sh"
+          wp_stack_urls_replace_usage
+          ;;
+        *)
+          wp_stack_usage
+          exit 1
+          ;;
+      esac
+      ;;
+    migrate)
+      shift 1
+      # shellcheck source=../lib/migrate.sh
+      source "${LIB_DIR}/migrate.sh"
+      wp_stack_migrate "$@"
+      ;;
+    *)
+      wp_stack_usage
+      exit 1
+      ;;
+  esac
+}
+
+main "$@"

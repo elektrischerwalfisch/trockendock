@@ -1,0 +1,13 @@
+services:
+  web:
+    image: ${PHP_IMAGE}
+    container_name: ${PROJECT_SLUG}-web
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT}:80"
+    volumes:
+      - .:/var/www/html
+    command: >
+      bash -c "a2enmod rewrite &&
+      sed -i 's/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf &&
+      apache2-foreground"

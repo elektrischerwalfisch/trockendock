@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# Port block helpers for wp-stack (801x convention).
+
+# Populates global array WP_STACK_USED_BLOCKS from project .env files.
+wp_stack_collect_used_blocks() {
+  WP_STACK_USED_BLOCKS=()
+
+  local project_dir env_file web_port wp_port
+  for project_dir in "${WEBSITES_ROOT}"/*/; do
+    [ -d "$project_dir" ] || continue
+    [ -f "${project_dir}docker-compose.yml" ] || continue
+
+    env_file="${project_dir}.env"
+    [ -f "$env_file" ] || continue
+
+    wp_port="$(grep -E '^WP_PORT=' "$env_file" 2>/dev/null | head -n 1 | cut -d= -f2- | tr -d '\r')"
+    if [[ "$wp_port" =~ ^[0-9]+$ ]]; then
+      WP_STACK_USED_BLOCKS+=($((wp_port / 10)))
+      continue
+    fi
+
+    web_port="$(grep -E '^WEB_PORT=' "$env_file" 2>/dev/null | head -n 1 | cut -d= -f2- | tr -d '\r')"
+    if [[ "$web_port" =~ ^[0-9]+$ ]]; then
+      WP_STACK_USED_BLOCKS+=($((web_port / 10)))
+    fi
+  done
+}
+
+# Prints the next free block number (e.g. 803). Empty if none in 801–899.
+wp_stack_next_free_block() {
+  wp_stack_collect_used_blocks
+
+  local block used in_use
+  for block in $(seq 801 899); do
+    in_use=0
+    for used in "${WP_STACK_USED_BLOCKS[@]:-}"; do
+      if [[ "$used" -eq "$block" ]]; then
+        in_use=1
+        break
+      fi
+    done
+    if [[ "$in_use" -eq 0 ]]; then
+      echo "$block"
+      return 0
+    fi
+  done
+
+  return 1
+}
+
+# Sets WP_PORT, PMA_PORT, MAILHOG_UI_PORT, MAILHOG_SMTP_PORT for a block.
+wp_stack_ports_for_block() {
+  local block="$1"
+  WP_PORT="${block}1"
+  PMA_PORT="${block}2"
+  MAILHOG_UI_PORT="${block}3"
+  MAILHOG_SMTP_PORT="${block}4"
+}

@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: MIT
+#
+# Trockendock — Static PHP stack CLI (static-stack)
+# Author: elektrischerwalfisch
+#
+# See LICENSE and VERSION at repository root.
+
+set -euo pipefail
+
+BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LIB_DIR="${BIN_DIR}/../lib"
+
+static_stack_usage() {
+  cat <<'EOF'
+static-stack — Static PHP stack tooling (Trockendock)
+
+Usage:
+  static-stack project create <folder> --variant <name> [options]
+
+Variants:
+  static-php           Apache + PHP (static/php)
+  static-php-mailhog   Apache + PHP + Mailhog (static/php/mailhog)
+
+Run a subcommand with --help for details.
+EOF
+}
+
+main() {
+  local command="${1:-}"
+  local subcommand="${2:-}"
+
+  case "$command" in
+    ""|-h|--help|help)
+      static_stack_usage
+      ;;
+    project)
+      case "$subcommand" in
+        create)
+          shift 2
+          # shellcheck source=../lib/project-create.sh
+          source "${LIB_DIR}/project-create.sh"
+          static_stack_project_create "$@"
+          ;;
+        ""|-h|--help|help)
+          # shellcheck source=../lib/project-create.sh
+          source "${LIB_DIR}/project-create.sh"
+          static_stack_project_create_usage
+          ;;
+        *)
+          static_stack_usage
+          exit 1
+          ;;
+      esac
+      ;;
+    *)
+      static_stack_usage
+      exit 1
+      ;;
+  esac
+}
+
+main "$@"

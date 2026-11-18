@@ -1,0 +1,9 @@
+.env
+
+# Keep only the project theme in version control.
+wp-content/*
+!wp-content/themes/
+wp-content/themes/*
+wp-content/themes/twenty*/
+!wp-content/themes/your-theme/
+!wp-content/themes/your-theme/**
