@@ -9,6 +9,12 @@ docs-archive/
 # Local path overrides (machine-specific)
 config/paths.env
 
+# Operator stack image soft defaults (machine-specific; see stack-defaults.env.example)
+config/stack-defaults.env
+
 # Generated link hub (project ports / live URLs — regenerate via bin/generate-local-dev-index.sh)
 /trockendock.html
+
+# Local issue worklogs (not part of the public platform tree)
+docs/issue-worklogs/
 

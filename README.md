@@ -19,7 +19,7 @@ trockendock/
 ├── start-menu.sh             # Interactive terminal menu
 ├── trockendock.html          # Generated link hub (gitignored) — bookmark this
 ├── bin/                      # Platform executables (menu, index hub, status helper)
-├── config/                   # Central paths (paths.env.example, load-paths.sh)
+├── config/                   # load-config.sh, paths.env.example, stack-defaults.env.example
 ├── docs/                     # Active English docs (guides, architecture, ADRs)
 ├── templates/
 │   ├── wordpress/

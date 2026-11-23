@@ -8,7 +8,7 @@ STATIC_STACK_ROOT="$(cd "${STATIC_STACK_LIB}/.." && pwd)"
 TROCKENDOCK_ROOT="$(cd "${STATIC_STACK_ROOT}/../.." && pwd)"
 
 # shellcheck disable=SC1091
-source "${TROCKENDOCK_ROOT}/config/load-paths.sh"
+source "${TROCKENDOCK_ROOT}/config/load-config.sh"
 
 static_stack_die() {
   echo "static-stack: $*" >&2

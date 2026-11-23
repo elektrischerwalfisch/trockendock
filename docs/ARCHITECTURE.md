@@ -31,7 +31,7 @@ Docker Compose runs per project: WordPress (+ MariaDB, phpMyAdmin, Mailhog) or S
 
 | Module              | Path                         | Responsibility                                      |
 |---------------------|------------------------------|-----------------------------------------------------|
-| Path config         | `config/`                    | `paths.env` + `load-paths.sh`                       |
+| Config loader       | `config/`                    | `load-config.sh` (paths + optional stack-defaults)   |
 | Platform bin        | `bin/`                       | Menu, link hub, Docker status helper                |
 | WordPress stack     | `stacks/wordpress/`          | `wp-stack` create / migrate / db / urls             |
 | Static PHP stack    | `stacks/static-php/`         | `static-stack` create                               |

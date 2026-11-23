@@ -9,7 +9,7 @@ Cross-cutting onboarding. Stack-specific create and ops live under [`wordpress/g
 - **Load paths** before path-dependent commands:
 
   ```bash
-  source config/load-paths.sh   # from $TROCKENDOCK_ROOT
+  source config/load-config.sh   # from $TROCKENDOCK_ROOT
   ```
 
 First-time setup: [`install-trockendock.md`](install-trockendock.md) (tested on Ubuntu; other OS may work — not verified).
@@ -27,7 +27,7 @@ Numbered menus for WordPress, Static PHP, link hub refresh/open, Docker status, 
 Optional — add stack CLIs to `PATH`:
 
 ```bash
-source config/load-paths.sh
+source config/load-config.sh
 export PATH="${TROCKENDOCK_ROOT}/stacks/wordpress/bin:${TROCKENDOCK_ROOT}/stacks/static-php/bin:$PATH"
 ```
 
@@ -60,7 +60,7 @@ docker compose logs -f
 Regenerate and open the link hub:
 
 ```bash
-source config/load-paths.sh
+source config/load-config.sh
 "$GENERATE_INDEX_SCRIPT"
 xdg-open "$LOCAL_DEV_INDEX_FILE"   # trockendock.html at repo root (gitignored)
 ```

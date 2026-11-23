@@ -49,7 +49,7 @@ On **other OS**: use the matching guide under [Docker Engine install](https://do
 ```bash
 cd "$TROCKENDOCK_ROOT"   # this repository
 cp config/paths.env.example config/paths.env   # adjust WEBSITES_ROOT if needed
-source config/load-paths.sh
+source config/load-config.sh
 ```
 
 Details: [`../config/README.md`](../config/README.md).

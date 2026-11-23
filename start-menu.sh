@@ -7,6 +7,6 @@
 # See LICENSE and VERSION at repository root.
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=config/load-paths.sh
-source "${ROOT}/config/load-paths.sh"
+# shellcheck source=config/load-config.sh
+source "${ROOT}/config/load-config.sh"
 exec bash "${ROOT}/bin/menu.sh"

@@ -2,12 +2,12 @@
 
 Platform skeleton for `wp-stack project create` (and manual `cp -r`). This `README.md` stays in Trockendock only — **project create removes it** from the new project folder.
 
-> **Paths:** `source config/load-paths.sh` from `$TROCKENDOCK_ROOT` — see [`../../config/README.md`](../../config/README.md).
+> **Paths:** `source config/load-config.sh` from `$TROCKENDOCK_ROOT` — see [`../../config/README.md`](../../config/README.md).
 
 ## Quick start
 
 ```bash
-source config/load-paths.sh
+source config/load-config.sh
 cp -r "${TROCKENDOCK_ROOT}/templates/wordpress" "${WEBSITES_ROOT}/<project>"
 cd "${WEBSITES_ROOT}/<project>"
 cp .env.example .env

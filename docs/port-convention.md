@@ -21,7 +21,7 @@ cd "$TROCKENDOCK_ROOT"
 | Generated HTML | `$LOCAL_DEV_INDEX_FILE` (Trockendock root: `trockendock.html`, gitignored) |
 
 ```bash
-source config/load-paths.sh
+source config/load-config.sh
 "$GENERATE_INDEX_SCRIPT"
 xdg-open "$LOCAL_DEV_INDEX_FILE"
 ```

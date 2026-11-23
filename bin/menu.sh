@@ -9,8 +9,8 @@
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-# shellcheck source=../config/load-paths.sh
-source "${ROOT}/config/load-paths.sh"
+# shellcheck source=../config/load-config.sh
+source "${ROOT}/config/load-config.sh"
 
 WP_STACK="${ROOT}/stacks/wordpress/bin/wp-stack"
 STATIC_STACK="${ROOT}/stacks/static-php/bin/static-stack"

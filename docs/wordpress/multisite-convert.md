@@ -34,7 +34,7 @@ The template `.htaccess` is mounted and maps path-Multisite assets (`/en/wp-cont
 - Project created (`wp-stack project create` or template copy)
 - Stack running: `docker compose up -d` in the project folder
 - WordPress installer completed once (`http://localhost:<WP_PORT>/`)
-- Paths loaded if needed: `source config/load-paths.sh` from `$TROCKENDOCK_ROOT`
+- Paths loaded if needed: `source config/load-config.sh` from `$TROCKENDOCK_ROOT`
 
 ## Steps
 

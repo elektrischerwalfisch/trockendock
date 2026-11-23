@@ -2,7 +2,7 @@
 
 CLI and tooling for static PHP Docker templates (`static/php` and `static/php/mailhog`). How-tos: [`../../docs/static-php/`](../../docs/static-php/).
 
-> **Paths:** `source config/load-paths.sh` from `$TROCKENDOCK_ROOT` — see [`../../config/README.md`](../../config/README.md).
+> **Paths:** `source config/load-config.sh` from `$TROCKENDOCK_ROOT` — see [`../../config/README.md`](../../config/README.md).
 
 ## Templates
 
@@ -20,7 +20,7 @@ Apache starts with `mod_rewrite` and `AllowOverride All` so project `.htaccess` 
 `bin/static-stack` — add to `PATH` or call by full path:
 
 ```bash
-source config/load-paths.sh
+source config/load-config.sh
 export PATH="${TROCKENDOCK_ROOT}/stacks/static-php/bin:$PATH"
 ```
 

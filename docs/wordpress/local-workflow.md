@@ -19,20 +19,20 @@ Operator create/ops: [`getting-started.md`](getting-started.md). Platform entry:
 
 **Always resolve paths from Trockendock config first.** Do not hardcode or guess machine-specific paths. Never paste literal values from `paths.env` into chat or tracked docs.
 
-1. Locate `config/load-paths.sh` (glob: `**/trockendock/config/load-paths.sh`).
+1. Locate `config/load-config.sh` (glob: `**/trockendock/config/load-config.sh`).
 2. Prefer `config/paths.env` if present; otherwise `config/paths.env.example`.
 3. For shell commands:
 
    ```bash
-   source "${TROCKENDOCK_ROOT}/config/load-paths.sh"
+   source "${TROCKENDOCK_ROOT}/config/load-config.sh"
    ```
 
 | Variable                | Set in                 | Role                               |
 |-------------------------|------------------------|------------------------------------|
 | `WEBSITES_ROOT`         | `config/paths.env`     | Parent folder of site projects     |
 | `TROCKENDOCK_ROOT`      | `config/paths.env`     | Trockendock platform repository    |
-| `LOCAL_DEV_INDEX_FILE`  | `config/load-paths.sh` | Generated browser link hub         |
-| `GENERATE_INDEX_SCRIPT` | `config/load-paths.sh` | `bin/generate-local-dev-index.sh`  |
+| `LOCAL_DEV_INDEX_FILE`  | `config/load-config.sh` | Generated browser link hub         |
+| `GENERATE_INDEX_SCRIPT` | `config/load-config.sh` | `bin/generate-local-dev-index.sh`  |
 
 | Role               | Use                                              |
 |--------------------|--------------------------------------------------|
@@ -65,7 +65,7 @@ Config reference: `${TROCKENDOCK_ROOT}/config/README.md`
 Preferred:
 
 ```bash
-source "${TROCKENDOCK_ROOT}/config/load-paths.sh"
+source "${TROCKENDOCK_ROOT}/config/load-config.sh"
 "${TROCKENDOCK_ROOT}/stacks/wordpress/bin/wp-stack" project create <folder>
 ```
 

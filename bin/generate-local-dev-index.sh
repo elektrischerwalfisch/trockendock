@@ -4,8 +4,8 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=../config/load-paths.sh
-source "${SCRIPT_DIR}/../config/load-paths.sh"
+# shellcheck source=../config/load-config.sh
+source "${SCRIPT_DIR}/../config/load-config.sh"
 
 OUTPUT="${LOCAL_DEV_INDEX_FILE}"
 GENERATED_AT="$(date '+%Y-%m-%d %H:%M')"

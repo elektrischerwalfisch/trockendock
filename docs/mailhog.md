@@ -19,7 +19,7 @@ cd "$TROCKENDOCK_ROOT"
 | Mailhog SMTP | `MAILHOG_SMTP_PORT` | `…4` (e.g. 8024) |
 
 - Inbox: `http://localhost:<MAILHOG_UI_PORT>/`
-- Hub: `$LOCAL_DEV_INDEX_FILE` after `source config/load-paths.sh`
+- Hub: `$LOCAL_DEV_INDEX_FILE` after `source config/load-config.sh`
 - Full block schema: [`port-convention.md`](port-convention.md)
 
 ## SMTP targets

@@ -9,7 +9,7 @@ TROCKENDOCK_ROOT="$(cd "${WP_STACK_ROOT}/../.." && pwd)"
 WORDPRESS_TEMPLATE="${TROCKENDOCK_ROOT}/templates/wordpress"
 
 # shellcheck disable=SC1091
-source "${TROCKENDOCK_ROOT}/config/load-paths.sh"
+source "${TROCKENDOCK_ROOT}/config/load-config.sh"
 
 wp_stack_die() {
   echo "wp-stack: $*" >&2

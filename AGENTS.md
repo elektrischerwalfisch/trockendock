@@ -33,9 +33,9 @@ Trockendock is a local development platform for website projects: reusable Docke
 
 **Always resolve paths from Trockendock config first.** Do not hardcode or guess machine-specific paths. Never paste literal values from `paths.env` into chat or tracked files.
 
-1. Locate `config/load-paths.sh` (glob: `**/trockendock/config/load-paths.sh`).
+1. Locate `config/load-config.sh` (glob: `**/trockendock/config/load-config.sh`).
 2. Prefer `config/paths.env` if present; otherwise `config/paths.env.example`.
-3. For shell commands: `source "${TROCKENDOCK_ROOT}/config/load-paths.sh"`.
+3. For shell commands: `source "${TROCKENDOCK_ROOT}/config/load-config.sh"`.
 
 | Variable                | Role                                      |
 |-------------------------|-------------------------------------------|
@@ -121,7 +121,7 @@ Any modification to the above requires explicit confirmation first.
 ### Bash
 - Prefer `set -euo pipefail` in scripts
 - Quote variables; avoid word-splitting pitfalls
-- Source shared helpers via `config/load-paths.sh` instead of hardcoding roots
+- Source shared helpers via `config/load-config.sh` instead of hardcoding roots
 - Parse `.env` carefully — never print secret values in logs or chat
 - Prefer reading `VERSION` from repo root when showing a platform version (do not hardcode)
 

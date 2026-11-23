@@ -51,7 +51,7 @@ Optional: set `MIGRATION_SOURCE_URL` in `.env` (e.g. `https://www.example.de`) f
 
 ```bash
 cd "$TROCKENDOCK_ROOT"
-source config/load-paths.sh
+source config/load-config.sh
 "$GENERATE_INDEX_SCRIPT"
 ```
 
