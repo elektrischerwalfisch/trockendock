@@ -14,6 +14,7 @@ Active English documentation for operators and AI.
 | WordPress local workflow             | [`wordpress/local-workflow.md`](wordpress/local-workflow.md) |
 | ADRs                                 | [`decisions/README.md`](decisions/README.md)               |
 | Anti-patterns                        | [`anti-patterns.md`](anti-patterns.md)                     |
+| Smoke tests (repo root)              | [`../tests/README.md`](../tests/README.md)                 |
 
 ## AI entrypoints (repo root)
 

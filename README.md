@@ -21,11 +21,13 @@ trockendock/
 ├── bin/                      # Platform executables (menu, index hub, status helper)
 ├── config/                   # load-config.sh, paths.env.example, stack-defaults.env.example
 ├── docs/                     # Active English docs (guides, architecture, ADRs)
+├── tests/                    # Shell smoke checks (see tests/README.md)
 ├── templates/
 │   ├── wordpress/
 │   ├── static-php/
 │   └── static-php-mailhog/
 └── stacks/
+    ├── lib/                  # Shared stack helpers (stack-image-pins.sh)
     ├── wordpress/
     └── static-php/
 ```
@@ -43,3 +45,4 @@ trockendock/
 | Architecture               | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)         |
 | ADRs                       | [`docs/decisions/README.md`](docs/decisions/README.md) |
 | Path configuration         | [`config/README.md`](config/README.md)                 |
+| Smoke tests                | [`tests/README.md`](tests/README.md)                   |

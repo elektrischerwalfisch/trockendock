@@ -29,14 +29,16 @@ Docker Compose runs per project: WordPress (+ MariaDB, phpMyAdmin, Mailhog) or S
 
 ## Module Breakdown
 
-| Module              | Path                         | Responsibility                                      |
-|---------------------|------------------------------|-----------------------------------------------------|
-| Config loader       | `config/`                    | `load-config.sh` (paths + optional stack-defaults)   |
-| Platform bin        | `bin/`                       | Menu, link hub, Docker status helper                |
-| WordPress stack     | `stacks/wordpress/`          | `wp-stack` create / migrate / db / urls             |
-| Static PHP stack    | `stacks/static-php/`         | `static-stack` create                               |
-| Templates           | `templates/`                 | Compose + `.env.example` + seed files               |
-| AI docs (active)    | `docs/`                      | Guides, architecture, ADRs, anti-patterns           |
+| Module             | Path                             | Responsibility                                      |
+| ------------------ | -------------------------------- | --------------------------------------------------- |
+| Config loader      | `config/`                        | `load-config.sh` (paths + optional stack-defaults)  |
+| Shared pin helpers | `stacks/lib/stack-image-pins.sh` | Validate / format image tags; idempotent `.env` set |
+| Platform bin       | `bin/`                           | Menu, link hub, Docker status helper                |
+| WordPress stack    | `stacks/wordpress/`              | `wp-stack` create / migrate / db / urls             |
+| Static PHP stack   | `stacks/static-php/`             | `static-stack` create                               |
+| Templates          | `templates/`                     | Compose + `.env.example` + seed files               |
+| Smoke tests        | `tests/`                         | Shell dry-run checks (`tests/README.md`)            |
+| AI docs (active)   | `docs/`                          | Guides, architecture, ADRs, anti-patterns           |
 
 ---
 

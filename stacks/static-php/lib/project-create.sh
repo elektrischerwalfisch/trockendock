@@ -19,20 +19,27 @@ Variants (required):
   static-php           Apache + PHP only (static/php)
   static-php-mailhog   Apache + PHP + Mailhog (static/php/mailhog)
 
+Image pin (required unless set in config/stack-defaults.env):
+  --php <x.y|php:x.y-apache>   e.g. 8.3 or php:8.3-apache → PHP_IMAGE
+
 Options:
   --slug <name>   PROJECT_SLUG in .env (default: folder name)
   --dry-run       Print actions without creating files
   --no-index      Skip generate-local-dev-index.sh
   -h, --help      Show this help
 
+Hub tags:
+  https://hub.docker.com/_/php/tags
+
 Examples:
-  static-stack project create kundin-a --variant static-php
-  static-stack project create kundin-b --variant static-php-mailhog --slug kundin-b
+  static-stack project create kundin-a --variant static-php --php 8.3
+  static-stack project create kundin-b --variant static-php-mailhog --php php:8.2-apache --slug kundin-b
 EOF
 }
 
 static_stack_project_create() {
   local folder="" slug="" variant="" dry_run=0 skip_index=0
+  local php_input="" php_image=""
 
   if [[ $# -eq 0 ]]; then
     static_stack_project_create_usage
@@ -53,6 +60,11 @@ static_stack_project_create() {
       --slug)
         [[ $# -ge 2 ]] || static_stack_die "--slug requires a value"
         slug="$2"
+        shift 2
+        ;;
+      --php)
+        [[ $# -ge 2 ]] || static_stack_die "--php requires a value"
+        php_input="$2"
         shift 2
         ;;
       --dry-run)
@@ -85,6 +97,17 @@ static_stack_project_create() {
   slug="${slug:-$folder}"
   local target_dir="${WEBSITES_ROOT}/${folder}"
 
+  if [[ -n "$php_input" ]]; then
+    php_image="$(trockendock_resolve_php_image "$php_input")"
+  else
+    php_image="${DEFAULT_PHP_IMAGE:-}"
+  fi
+
+  if [[ -z "$php_image" ]]; then
+    static_stack_die "PHP image pin required: pass --php <x.y|php:x.y-apache>, or set DEFAULT_PHP_IMAGE in config/stack-defaults.env (see config/stack-defaults.env.example)"
+  fi
+  trockendock_validate_php_image "$php_image" || static_stack_die "refusing to create with invalid PHP image pin"
+
   [[ -d "$STATIC_STACK_TEMPLATE" ]] || static_stack_die "template not found: ${STATIC_STACK_TEMPLATE}"
   [[ ! -e "$target_dir" ]] || static_stack_die "target already exists: ${target_dir}"
 
@@ -97,6 +120,7 @@ static_stack_project_create() {
     echo "  folder:      ${target_dir}"
     echo "  variant:     ${STATIC_STACK_VARIANT_LABEL} (${variant})"
     echo "  slug:        ${slug}"
+    echo "  PHP_IMAGE:   ${php_image}"
     if [[ "$variant" == "static-php-mailhog" ]]; then
       echo "  port block:  ${block}x (Web ${WEB_PORT}, Mailhog UI ${MAILHOG_UI_PORT}, SMTP ${MAILHOG_SMTP_PORT})"
     else
@@ -110,16 +134,13 @@ static_stack_project_create() {
   rm -f "${target_dir}/README.md"
   cp "${target_dir}/.env.example" "${target_dir}/.env"
 
-  sed -i \
-    -e "s/^PROJECT_SLUG=.*/PROJECT_SLUG=${slug}/" \
-    -e "s/^WEB_PORT=.*/WEB_PORT=${WEB_PORT}/" \
-    "${target_dir}/.env"
+  trockendock_set_env_var "${target_dir}" PROJECT_SLUG "${slug}"
+  trockendock_set_env_var "${target_dir}" PHP_IMAGE "${php_image}"
+  trockendock_set_env_var "${target_dir}" WEB_PORT "${WEB_PORT}"
 
   if [[ "$variant" == "static-php-mailhog" ]]; then
-    sed -i \
-      -e "s/^MAILHOG_UI_PORT=.*/MAILHOG_UI_PORT=${MAILHOG_UI_PORT}/" \
-      -e "s/^MAILHOG_SMTP_PORT=.*/MAILHOG_SMTP_PORT=${MAILHOG_SMTP_PORT}/" \
-      "${target_dir}/.env"
+    trockendock_set_env_var "${target_dir}" MAILHOG_UI_PORT "${MAILHOG_UI_PORT}"
+    trockendock_set_env_var "${target_dir}" MAILHOG_SMTP_PORT "${MAILHOG_SMTP_PORT}"
   fi
 
   if [[ "$skip_index" -eq 0 ]]; then
@@ -129,6 +150,7 @@ static_stack_project_create() {
   static_stack_info "created ${target_dir}"
   echo "  variant:      ${STATIC_STACK_VARIANT_LABEL}"
   echo "  PROJECT_SLUG: ${slug}"
+  echo "  PHP_IMAGE:    ${php_image}"
   if [[ "$variant" == "static-php-mailhog" ]]; then
     echo "  ports:        Web ${WEB_PORT}, Mailhog ${MAILHOG_UI_PORT}/${MAILHOG_SMTP_PORT}"
   else

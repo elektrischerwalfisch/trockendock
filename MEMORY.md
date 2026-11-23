@@ -10,7 +10,7 @@
 **Date**: 2026-11-23
 **Phase**: Phase 2 · Hardening & polish
 
-**Working on**: Stack image pin lifecycle — #1 (WP create pins done; static create + helpers next)
+**Working on**: Stack image pin lifecycle — #1 (create pins + shared helpers done; menu/live-URL/migrate next)
 
 **Next steps**:
 - [ ] 1) Pin on create/migrate (`docs/issue-worklogs/unassigned/pin-stack-image-versions-on-create-migrate.md`)
@@ -38,6 +38,8 @@
 - 2026-11-23 #1: shipped `stack-defaults.env.example`, gitignore, stack-defaults soft-load
 - 2026-11-23 Consolidated `load-paths.sh` + `load-stack-defaults.sh` → `config/load-config.sh` (all call sites + docs)
 - 2026-11-23 #1: template `.env.example` images empty; `wp-stack project create` requires flags or `stack-defaults`
+- 2026-11-23 #1: `static-stack project create --php`; shared `stacks/lib/stack-image-pins.sh` (validate/format/`.env` write; moved from repo-root `lib/`)
+- 2026-11-23 Documented `tests/` smoke suite (`tests/README.md` + README/docs links)
 
 ---
 
@@ -49,6 +51,6 @@
 - **Fresh Multisite**: run `wp core multisite-convert` **before** setting `WP_MULTISITE=1` (see `docs/wordpress/multisite-convert.md`).
 - **`wp-content` permissions**: after migrate/unpack, `700`/`600` as UID 1000 → blank page; www-data needs read (`33:33` + sane modes).
 - **HTTPS on publish ports**: Firefox HTTPS-First against `localhost:<WP_PORT>` looks like an endless load — use `http://`.
-- **`config/paths.env`**: machine-local; wrong `WEBSITES_ROOT` yields empty project lists in the menu/index.
+- **`config/paths.env`**: machine-local; wrong `WEBSITES_ROOT` yields empty project lists in the menu/index. Wrong `TROCKENDOCK_ROOT` vs this checkout: stack CLIs still bind templates/`stacks/lib` from the script tree; hub/index scripts follow `paths.env`.
 - **`config/stack-defaults.env`**: machine-local soft defaults (`DEFAULT_*` image pins); gitignored; load via `load-config.sh` — missing file ⇒ create must require explicit pins; never source `.example` as fallback. Prefixed keys avoid Compose shell overrides.
 - **Compose shell env overrides `.env`**: stale `WORDPRESS_IMAGE` in the shell blocks image bumps — `unset` before pull/recreate.

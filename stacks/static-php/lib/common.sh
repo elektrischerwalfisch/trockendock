@@ -5,10 +5,20 @@ set -euo pipefail
 
 STATIC_STACK_LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 STATIC_STACK_ROOT="$(cd "${STATIC_STACK_LIB}/.." && pwd)"
-TROCKENDOCK_ROOT="$(cd "${STATIC_STACK_ROOT}/../.." && pwd)"
+# Platform root from this checkout (paths.env may later override TROCKENDOCK_ROOT).
+_STATIC_STACK_PLATFORM_ROOT="$(cd "${STATIC_STACK_ROOT}/../.." && pwd)"
+TROCKENDOCK_ROOT="${_STATIC_STACK_PLATFORM_ROOT}"
 
 # shellcheck disable=SC1091
-source "${TROCKENDOCK_ROOT}/config/load-config.sh"
+source "${_STATIC_STACK_PLATFORM_ROOT}/config/load-config.sh"
+# shellcheck disable=SC1091
+source "${_STATIC_STACK_PLATFORM_ROOT}/stacks/lib/stack-image-pins.sh"
+
+# Prefer templates from this checkout (paths.env may point TROCKENDOCK_ROOT elsewhere).
+STATIC_PHP_TEMPLATE="${_STATIC_STACK_PLATFORM_ROOT}/templates/static-php"
+STATIC_PHP_MAILHOG_TEMPLATE="${_STATIC_STACK_PLATFORM_ROOT}/templates/static-php-mailhog"
+export STATIC_PHP_TEMPLATE STATIC_PHP_MAILHOG_TEMPLATE
+unset _STATIC_STACK_PLATFORM_ROOT
 
 static_stack_die() {
   echo "static-stack: $*" >&2

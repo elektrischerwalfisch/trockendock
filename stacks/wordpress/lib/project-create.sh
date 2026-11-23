@@ -38,21 +38,6 @@ Example:
 EOF
 }
 
-# Reject floating / unpinned WordPress tags (e.g. wordpress:php8.3-apache).
-wp_stack_validate_wordpress_image() {
-  local image="$1"
-  if [[ ! "$image" =~ ^wordpress:[0-9]+\.[0-9]+(\.[0-9]+)?-php[0-9]+\.[0-9]+-apache$ ]]; then
-    wp_stack_die "invalid WORDPRESS_IMAGE '${image}' (expected wordpress:<WP>-php<PHP>-apache with explicit core+PHP, e.g. wordpress:6.4.3-php8.3-apache)"
-  fi
-}
-
-wp_stack_validate_mariadb_image() {
-  local image="$1"
-  if [[ ! "$image" =~ ^mariadb:[0-9]+\.[0-9]+$ ]]; then
-    wp_stack_die "invalid MARIADB_IMAGE '${image}' (expected mariadb:<x.y>, e.g. mariadb:10.11)"
-  fi
-}
-
 wp_stack_project_create() {
   local folder="" slug="" theme_slug="" dry_run=0 skip_index=0
   local wordpress_image="" mariadb_image=""
@@ -122,8 +107,8 @@ wp_stack_project_create() {
   if [[ -z "$wordpress_image" || -z "$mariadb_image" ]]; then
     wp_stack_die "image pins required: pass --wordpress-image and --mariadb-image, or set DEFAULT_WORDPRESS_IMAGE / DEFAULT_MARIADB_IMAGE in config/stack-defaults.env (see config/stack-defaults.env.example)"
   fi
-  wp_stack_validate_wordpress_image "$wordpress_image"
-  wp_stack_validate_mariadb_image "$mariadb_image"
+  trockendock_validate_wordpress_image "$wordpress_image" || wp_stack_die "refusing to create with invalid WordPress image pin"
+  trockendock_validate_mariadb_image "$mariadb_image" || wp_stack_die "refusing to create with invalid MariaDB image pin"
 
   [[ -d "$WORDPRESS_TEMPLATE" ]] || wp_stack_die "template not found: ${WORDPRESS_TEMPLATE}"
   [[ ! -e "$target_dir" ]] || wp_stack_die "target already exists: ${target_dir}"
@@ -152,17 +137,15 @@ wp_stack_project_create() {
   rm -f "${target_dir}/README.md"
   cp "${target_dir}/.env.example" "${target_dir}/.env"
 
-  sed -i \
-    -e "s/^PROJECT_SLUG=.*/PROJECT_SLUG=${slug}/" \
-    -e "s|^WORDPRESS_IMAGE=.*|WORDPRESS_IMAGE=${wordpress_image}|" \
-    -e "s|^MARIADB_IMAGE=.*|MARIADB_IMAGE=${mariadb_image}|" \
-    -e "s/^WP_PORT=.*/WP_PORT=${WP_PORT}/" \
-    -e "s/^PMA_PORT=.*/PMA_PORT=${PMA_PORT}/" \
-    -e "s/^MAILHOG_UI_PORT=.*/MAILHOG_UI_PORT=${MAILHOG_UI_PORT}/" \
-    -e "s/^MAILHOG_SMTP_PORT=.*/MAILHOG_SMTP_PORT=${MAILHOG_SMTP_PORT}/" \
-    -e "s/^WP_DB_PASSWORD=.*/WP_DB_PASSWORD=${db_password}/" \
-    -e "s/^WP_DB_ROOT_PASSWORD=.*/WP_DB_ROOT_PASSWORD=${db_root_password}/" \
-    "${target_dir}/.env"
+  trockendock_set_env_var "${target_dir}" PROJECT_SLUG "${slug}"
+  trockendock_set_env_var "${target_dir}" WORDPRESS_IMAGE "${wordpress_image}"
+  trockendock_set_env_var "${target_dir}" MARIADB_IMAGE "${mariadb_image}"
+  trockendock_set_env_var "${target_dir}" WP_PORT "${WP_PORT}"
+  trockendock_set_env_var "${target_dir}" PMA_PORT "${PMA_PORT}"
+  trockendock_set_env_var "${target_dir}" MAILHOG_UI_PORT "${MAILHOG_UI_PORT}"
+  trockendock_set_env_var "${target_dir}" MAILHOG_SMTP_PORT "${MAILHOG_SMTP_PORT}"
+  trockendock_set_env_var "${target_dir}" WP_DB_PASSWORD "${db_password}"
+  trockendock_set_env_var "${target_dir}" WP_DB_ROOT_PASSWORD "${db_root_password}"
 
   sed -i "s/your-theme/${theme_slug}/g" "${target_dir}/.gitignore"
 

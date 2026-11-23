@@ -5,11 +5,16 @@ set -euo pipefail
 
 WP_STACK_LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WP_STACK_ROOT="$(cd "${WP_STACK_LIB}/.." && pwd)"
-TROCKENDOCK_ROOT="$(cd "${WP_STACK_ROOT}/../.." && pwd)"
-WORDPRESS_TEMPLATE="${TROCKENDOCK_ROOT}/templates/wordpress"
+# Platform root from this checkout (paths.env may later override TROCKENDOCK_ROOT).
+_WP_STACK_PLATFORM_ROOT="$(cd "${WP_STACK_ROOT}/../.." && pwd)"
+TROCKENDOCK_ROOT="${_WP_STACK_PLATFORM_ROOT}"
+WORDPRESS_TEMPLATE="${_WP_STACK_PLATFORM_ROOT}/templates/wordpress"
 
 # shellcheck disable=SC1091
-source "${TROCKENDOCK_ROOT}/config/load-config.sh"
+source "${_WP_STACK_PLATFORM_ROOT}/config/load-config.sh"
+# shellcheck disable=SC1091
+source "${_WP_STACK_PLATFORM_ROOT}/stacks/lib/stack-image-pins.sh"
+unset _WP_STACK_PLATFORM_ROOT
 
 wp_stack_die() {
   echo "wp-stack: $*" >&2

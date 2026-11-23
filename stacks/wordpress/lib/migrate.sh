@@ -49,13 +49,7 @@ EOF
 # Set or update KEY=VALUE in a project's .env (uncomments if needed).
 wp_stack_set_env_var() {
   local dir="$1" key="$2" val="$3"
-  local file="${dir}/.env" esc
-  esc="$(printf '%s' "$val" | sed -e 's/[&|]/\\&/g')"
-  if grep -qE "^#?[[:space:]]*${key}=" "$file"; then
-    sed -i -E "s|^#?[[:space:]]*${key}=.*|${key}=${esc}|" "$file"
-  else
-    printf '%s=%s\n' "$key" "$val" >> "$file"
-  fi
+  trockendock_set_env_var "$dir" "$key" "$val" || wp_stack_die "failed to set ${key} in ${dir}/.env"
   wp_stack_info "set ${key}=${val} in .env"
 }
 
