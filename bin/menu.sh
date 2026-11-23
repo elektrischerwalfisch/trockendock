@@ -11,6 +11,8 @@ set -uo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck source=../config/load-config.sh
 source "${ROOT}/config/load-config.sh"
+# shellcheck source=../stacks/lib/stack-image-pins.sh
+source "${ROOT}/stacks/lib/stack-image-pins.sh"
 
 WP_STACK="${ROOT}/stacks/wordpress/bin/wp-stack"
 STATIC_STACK="${ROOT}/stacks/static-php/bin/static-stack"
@@ -26,6 +28,26 @@ menu_prompt() {
   local value=""
   read -r -p "${prompt}: " value
   printf '%s' "$value"
+}
+
+# Prompt with a format placeholder. If default is set, empty Enter uses it;
+# otherwise empty input is rejected (re-prompt).
+menu_prompt_pin() {
+  local label="$1" placeholder="$2" default="${3:-}"
+  local value=""
+  while true; do
+    if [[ -n "$default" ]]; then
+      read -r -p "${label} [${placeholder}; Enter=${default}]: " value
+      value="${value:-$default}"
+    else
+      read -r -p "${label} [${placeholder}]: " value
+    fi
+    if [[ -n "$value" ]]; then
+      printf '%s' "$value"
+      return 0
+    fi
+    echo "Required — enter a value, or set config/stack-defaults.env for Enter defaults."
+  done
 }
 
 menu_confirm_yes() {
@@ -116,17 +138,61 @@ EOF
 
 menu_wordpress_create() {
   local folder theme dry_args=()
+  local def_wp="" def_php="" def_mdb="" parts
+  local wp_core php_minor mariadb_minor wordpress_image mariadb_image
+  local create_args=()
+
   folder="$(menu_prompt "Project folder name under \$WEBSITES_ROOT")"
   [[ -n "$folder" ]] || return 0
   theme="$(menu_prompt "Theme slug (empty = folder name)")"
-  if menu_confirm_yes "Dry run only"; then
-    dry_args+=(--dry-run)
+
+  if [[ -n "${DEFAULT_WORDPRESS_IMAGE:-}" ]]; then
+    if parts="$(trockendock_parse_wordpress_image_parts "$DEFAULT_WORDPRESS_IMAGE")"; then
+      read -r def_wp def_php <<<"$parts"
+    fi
   fi
+  if [[ -n "${DEFAULT_MARIADB_IMAGE:-}" ]]; then
+    def_mdb="$(trockendock_parse_mariadb_image_minor "$DEFAULT_MARIADB_IMAGE" || true)"
+  fi
+
+  cat <<'EOF'
+
+Image pins
+──────────
+  WordPress tags: https://hub.docker.com/_/wordpress/tags
+  MariaDB tags:   https://hub.docker.com/_/mariadb/tags
+  Format:         wordpress:<WP>-php<PHP>-apache
+
+EOF
+  if [[ -n "${DEFAULT_WORDPRESS_IMAGE:-}" || -n "${DEFAULT_MARIADB_IMAGE:-}" ]]; then
+    echo "  stack-defaults: WORDPRESS_IMAGE=${DEFAULT_WORDPRESS_IMAGE:-'(unset)'} MARIADB_IMAGE=${DEFAULT_MARIADB_IMAGE:-'(unset)'}"
+    echo
+  fi
+
+  wp_core="$(menu_prompt_pin "WordPress core" "x.y.z" "$def_wp")"
+  php_minor="$(menu_prompt_pin "PHP minor" "x.y" "$def_php")"
+  mariadb_minor="$(menu_prompt_pin "MariaDB" "x.y" "$def_mdb")"
+
+  wordpress_image="$(trockendock_format_wordpress_image "$wp_core" "$php_minor")"
+  mariadb_image="$(trockendock_format_mariadb_image "$mariadb_minor")"
+
+  if ! trockendock_validate_wordpress_image "$wordpress_image"; then
+    menu_pause
+    return 0
+  fi
+  if ! trockendock_validate_mariadb_image "$mariadb_image"; then
+    menu_pause
+    return 0
+  fi
+
+  create_args=(project create "$folder" --wordpress-image "$wordpress_image" --mariadb-image "$mariadb_image")
   if [[ -n "$theme" ]]; then
-    menu_run "$WP_STACK" project create "$folder" --theme "$theme" "${dry_args[@]}"
-  else
-    menu_run "$WP_STACK" project create "$folder" "${dry_args[@]}"
+    create_args+=(--theme "$theme")
   fi
+  if menu_confirm_yes "Dry run only"; then
+    create_args+=(--dry-run)
+  fi
+  menu_run "$WP_STACK" "${create_args[@]}"
 }
 
 menu_wordpress_migrate() {

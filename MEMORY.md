@@ -10,7 +10,7 @@
 **Date**: 2026-11-23
 **Phase**: Phase 2 · Hardening & polish
 
-**Working on**: Stack image pin lifecycle — #1 (create pins + shared helpers done; menu/live-URL/migrate next)
+**Working on**: Stack image pin lifecycle — #1 (WP menu create pins done; static menu + live-URL/migrate next)
 
 **Next steps**:
 - [ ] 1) Pin on create/migrate (`docs/issue-worklogs/unassigned/pin-stack-image-versions-on-create-migrate.md`)
@@ -40,6 +40,7 @@
 - 2026-11-23 #1: template `.env.example` images empty; `wp-stack project create` requires flags or `stack-defaults`
 - 2026-11-23 #1: `static-stack project create --php`; shared `stacks/lib/stack-image-pins.sh` (validate/format/`.env` write; moved from repo-root `lib/`)
 - 2026-11-23 Documented `tests/` smoke suite (`tests/README.md` + README/docs links)
+- 2026-11-23 #1: menu WordPress create prompts WP/PHP/MariaDB pins (placeholders + Hub; Enter = stack-defaults)
 
 ---
 

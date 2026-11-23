@@ -114,9 +114,8 @@ Any modification to the above requires explicit confirmation first.
 - **All new comments and variable names must be in English**
 
 ### Versioning
-- Canonical SemVer lives in repo-root `VERSION` (single line). Do not duplicate the number in every script.
-- Record user-facing changes in `CHANGELOG.md` under `## Unreleased`; release rollover → `## <version> - <YYYY-MM-DD>`.
-- Bump `VERSION` only for platform/CLI/template changes, not for machine-local ops.
+- Canonical SemVer lives in repo-root `VERSION` (single line). Do not duplicate it in scripts.
+- Leave `VERSION` / `CHANGELOG.md` updates to the operator unless they explicitly ask.
 
 ### Bash
 - Prefer `set -euo pipefail` in scripts

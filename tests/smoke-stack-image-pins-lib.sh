@@ -21,6 +21,10 @@ trockendock_validate_wordpress_image "wordpress:6.4.3-php8.3-apache"
 trockendock_validate_mariadb_image "mariadb:10.11"
 trockendock_validate_php_image "php:8.3-apache"
 
+[[ "$(trockendock_parse_wordpress_image_parts "wordpress:6.4.3-php8.3-apache")" == "6.4.3 8.3" ]]
+[[ "$(trockendock_parse_mariadb_image_minor "mariadb:10.11")" == "10.11" ]]
+[[ "$(trockendock_parse_php_image_minor "php:8.2-apache")" == "8.2" ]]
+
 if trockendock_validate_wordpress_image "wordpress:php8.3-apache" 2>/dev/null; then
   echo "expected floating WP tag to fail" >&2
   exit 1

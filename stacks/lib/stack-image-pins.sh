@@ -72,3 +72,34 @@ trockendock_validate_php_image() {
     return 1
   fi
 }
+
+# Print "WP_CORE PHP_MINOR" from a full WORDPRESS_IMAGE tag (or return 1).
+trockendock_parse_wordpress_image_parts() {
+  local image="$1" wp_core php_minor
+  wp_core="$(printf '%s' "$image" | sed -n 's/^wordpress:\([0-9][0-9.]*\)-php[0-9].*-apache$/\1/p')"
+  php_minor="$(printf '%s' "$image" | sed -n 's/^wordpress:[0-9][0-9.]*-php\([0-9][0-9.]*\)-apache$/\1/p')"
+  if [[ -z "$wp_core" || -z "$php_minor" ]]; then
+    return 1
+  fi
+  printf '%s %s' "$wp_core" "$php_minor"
+}
+
+# Print MariaDB minor (x.y) from MARIADB_IMAGE (or return 1).
+trockendock_parse_mariadb_image_minor() {
+  local image="$1" minor
+  minor="$(printf '%s' "$image" | sed -n 's/^mariadb:\([0-9][0-9.]*\)$/\1/p')"
+  if [[ -z "$minor" ]]; then
+    return 1
+  fi
+  printf '%s' "$minor"
+}
+
+# Print PHP minor (x.y) from PHP_IMAGE (or return 1).
+trockendock_parse_php_image_minor() {
+  local image="$1" minor
+  minor="$(printf '%s' "$image" | sed -n 's/^php:\([0-9][0-9.]*\)-apache$/\1/p')"
+  if [[ -z "$minor" ]]; then
+    return 1
+  fi
+  printf '%s' "$minor"
+}
