@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- feat: require explicit WP/MariaDB image pins on wp-stack project create
 - feat: unify path and stack-defaults loading in load-config.sh
 
 ## 1.0.0 - 2026-11-18

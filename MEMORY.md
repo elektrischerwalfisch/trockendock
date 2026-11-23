@@ -10,7 +10,7 @@
 **Date**: 2026-11-23
 **Phase**: Phase 2 · Hardening & polish
 
-**Working on**: Stack image pin lifecycle — #1 (`load-config.sh` + stack-defaults; create/migrate next)
+**Working on**: Stack image pin lifecycle — #1 (WP create pins done; static create + helpers next)
 
 **Next steps**:
 - [ ] 1) Pin on create/migrate (`docs/issue-worklogs/unassigned/pin-stack-image-versions-on-create-migrate.md`)
@@ -37,6 +37,7 @@
 - 2026-11-23 #1: operator `config/stack-defaults.env` (local soft defaults; no tracked version fallback)
 - 2026-11-23 #1: shipped `stack-defaults.env.example`, gitignore, stack-defaults soft-load
 - 2026-11-23 Consolidated `load-paths.sh` + `load-stack-defaults.sh` → `config/load-config.sh` (all call sites + docs)
+- 2026-11-23 #1: template `.env.example` images empty; `wp-stack project create` requires flags or `stack-defaults`
 
 ---
 

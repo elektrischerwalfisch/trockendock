@@ -35,10 +35,13 @@ export PATH="${TROCKENDOCK_ROOT}/stacks/wordpress/bin:$PATH"
 ### Create project
 
 ```bash
-wp-stack project create <folder> [--slug <slug>] [--theme <theme-slug>] [--dry-run]
+wp-stack project create <folder> \
+  --wordpress-image wordpress:<WP>-php<PHP>-apache \
+  --mariadb-image mariadb:<x.y> \
+  [--slug <slug>] [--theme <theme-slug>] [--dry-run]
 ```
 
-Copies `templates/wordpress` to `$WEBSITES_ROOT/<folder>/`, writes `.env` (next free `80Nx` port block, random DB passwords), runs `$GENERATE_INDEX_SCRIPT`.
+Image pins are required (flags or `DEFAULT_*` in `config/stack-defaults.env`). Floating tags like `wordpress:php8.3-apache` are rejected. Copies `templates/wordpress` to `$WEBSITES_ROOT/<folder>/`, writes `.env` (pins, next free `80Nx` port block, random DB passwords), runs `$GENERATE_INDEX_SCRIPT`.
 
 Onboarding: [`../../docs/wordpress/getting-started.md`](../../docs/wordpress/getting-started.md) · platform entry: [`../../docs/getting-started.md`](../../docs/getting-started.md).
 
