@@ -28,6 +28,13 @@ Central path and optional stack-default definitions for scripts and documentatio
 
 ## Stack image soft defaults (optional)
 
+Set up once after install (same idea as `paths.env`):
+
+```bash
+cp config/stack-defaults.env.example config/stack-defaults.env
+# uncomment and set DEFAULT_WORDPRESS_IMAGE / DEFAULT_MARIADB_IMAGE / DEFAULT_PHP_IMAGE
+```
+
 Missing `stack-defaults.env` is fine — create then requires explicit pins. The tracked `.example` is **never** sourced as a version fallback. Soft defaults are loaded automatically when you source `load-config.sh`.
 
 | Variable | Meaning |

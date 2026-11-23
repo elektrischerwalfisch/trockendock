@@ -23,23 +23,25 @@ Image pin (required unless set in config/stack-defaults.env):
   --php <x.y|php:x.y-apache>   e.g. 8.3 or php:8.3-apache → PHP_IMAGE
 
 Options:
-  --slug <name>   PROJECT_SLUG in .env (default: folder name)
-  --dry-run       Print actions without creating files
-  --no-index      Skip generate-local-dev-index.sh
-  -h, --help      Show this help
+  --slug <name>         PROJECT_SLUG in .env (default: folder name)
+  --source-url <url>    Optional live site URL → MIGRATION_SOURCE_URL (link hub)
+  --dry-run             Print actions without creating files
+  --no-index            Skip generate-local-dev-index.sh
+  -h, --help            Show this help
 
 Hub tags:
   https://hub.docker.com/_/php/tags
 
 Examples:
   static-stack project create kundin-a --variant static-php --php 8.3
-  static-stack project create kundin-b --variant static-php-mailhog --php php:8.2-apache --slug kundin-b
+  static-stack project create kundin-b --variant static-php-mailhog --php php:8.2-apache \
+    --source-url https://www.example.de --slug kundin-b
 EOF
 }
 
 static_stack_project_create() {
   local folder="" slug="" variant="" dry_run=0 skip_index=0
-  local php_input="" php_image=""
+  local php_input="" php_image="" source_url=""
 
   if [[ $# -eq 0 ]]; then
     static_stack_project_create_usage
@@ -65,6 +67,11 @@ static_stack_project_create() {
       --php)
         [[ $# -ge 2 ]] || static_stack_die "--php requires a value"
         php_input="$2"
+        shift 2
+        ;;
+      --source-url)
+        [[ $# -ge 2 ]] || static_stack_die "--source-url requires a value"
+        source_url="$2"
         shift 2
         ;;
       --dry-run)
@@ -115,12 +122,17 @@ static_stack_project_create() {
   block="$(static_stack_next_free_block)" || static_stack_die "no free port block found (801–899)"
   static_stack_ports_for_block "$variant" "$block"
 
+  if [[ -n "$source_url" && ! "$source_url" =~ ^https?:// ]]; then
+    static_stack_die "invalid --source-url '${source_url}' (expected http:// or https:// URL)"
+  fi
+
   if [[ "$dry_run" -eq 1 ]]; then
     static_stack_info "dry run — would create:"
     echo "  folder:      ${target_dir}"
     echo "  variant:     ${STATIC_STACK_VARIANT_LABEL} (${variant})"
     echo "  slug:        ${slug}"
     echo "  PHP_IMAGE:   ${php_image}"
+    echo "  MIGRATION_SOURCE_URL: ${source_url:-'(unset)'}"
     if [[ "$variant" == "static-php-mailhog" ]]; then
       echo "  port block:  ${block}x (Web ${WEB_PORT}, Mailhog UI ${MAILHOG_UI_PORT}, SMTP ${MAILHOG_SMTP_PORT})"
     else
@@ -142,6 +154,9 @@ static_stack_project_create() {
     trockendock_set_env_var "${target_dir}" MAILHOG_UI_PORT "${MAILHOG_UI_PORT}"
     trockendock_set_env_var "${target_dir}" MAILHOG_SMTP_PORT "${MAILHOG_SMTP_PORT}"
   fi
+  if [[ -n "$source_url" ]]; then
+    trockendock_set_env_var "${target_dir}" MIGRATION_SOURCE_URL "${source_url}"
+  fi
 
   if [[ "$skip_index" -eq 0 ]]; then
     "$GENERATE_INDEX_SCRIPT"
@@ -151,6 +166,9 @@ static_stack_project_create() {
   echo "  variant:      ${STATIC_STACK_VARIANT_LABEL}"
   echo "  PROJECT_SLUG: ${slug}"
   echo "  PHP_IMAGE:    ${php_image}"
+  if [[ -n "$source_url" ]]; then
+    echo "  MIGRATION_SOURCE_URL: ${source_url}"
+  fi
   if [[ "$variant" == "static-php-mailhog" ]]; then
     echo "  ports:        Web ${WEB_PORT}, Mailhog ${MAILHOG_UI_PORT}/${MAILHOG_SMTP_PORT}"
   else

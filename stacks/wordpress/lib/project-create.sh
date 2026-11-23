@@ -20,11 +20,12 @@ Image pins (required unless set in config/stack-defaults.env):
   --mariadb-image <tag>     e.g. mariadb:10.11
 
 Options:
-  --slug <name>   PROJECT_SLUG in .env (default: folder name)
-  --theme <slug>  Theme folder in wp-content/themes/ (default: folder name)
-  --dry-run       Print actions without creating files
-  --no-index      Skip generate-local-dev-index.sh
-  -h, --help      Show this help
+  --slug <name>         PROJECT_SLUG in .env (default: folder name)
+  --theme <slug>        Theme folder in wp-content/themes/ (default: folder name)
+  --source-url <url>    Optional live site URL → MIGRATION_SOURCE_URL (link hub)
+  --dry-run             Print actions without creating files
+  --no-index            Skip generate-local-dev-index.sh
+  -h, --help            Show this help
 
 Hub tags:
   https://hub.docker.com/_/wordpress/tags
@@ -34,13 +35,14 @@ Example:
   wp-stack project create kundin-a \
     --wordpress-image wordpress:6.4.3-php8.3-apache \
     --mariadb-image mariadb:10.11 \
+    --source-url https://www.example.de \
     --slug kundin-a --theme kundin-a-theme
 EOF
 }
 
 wp_stack_project_create() {
   local folder="" slug="" theme_slug="" dry_run=0 skip_index=0
-  local wordpress_image="" mariadb_image=""
+  local wordpress_image="" mariadb_image="" source_url=""
 
   if [[ $# -eq 0 ]]; then
     wp_stack_project_create_usage
@@ -71,6 +73,11 @@ wp_stack_project_create() {
       --mariadb-image)
         [[ $# -ge 2 ]] || wp_stack_die "--mariadb-image requires a value"
         mariadb_image="$2"
+        shift 2
+        ;;
+      --source-url)
+        [[ $# -ge 2 ]] || wp_stack_die "--source-url requires a value"
+        source_url="$2"
         shift 2
         ;;
       --dry-run)
@@ -121,12 +128,17 @@ wp_stack_project_create() {
   db_password="$(wp_stack_generate_password)"
   db_root_password="$(wp_stack_generate_password)"
 
+  if [[ -n "$source_url" && ! "$source_url" =~ ^https?:// ]]; then
+    wp_stack_die "invalid --source-url '${source_url}' (expected http:// or https:// URL)"
+  fi
+
   if [[ "$dry_run" -eq 1 ]]; then
     wp_stack_info "dry run — would create:"
     echo "  folder:           ${target_dir}"
     echo "  slug:             ${slug}"
     echo "  WORDPRESS_IMAGE:  ${wordpress_image}"
     echo "  MARIADB_IMAGE:    ${mariadb_image}"
+    echo "  MIGRATION_SOURCE_URL: ${source_url:-'(unset)'}"
     echo "  port block:       ${block}x (WP ${WP_PORT}, PMA ${PMA_PORT}, Mailhog UI ${MAILHOG_UI_PORT}, SMTP ${MAILHOG_SMTP_PORT})"
     echo "  theme slug:       ${theme_slug}"
     return 0
@@ -146,6 +158,9 @@ wp_stack_project_create() {
   trockendock_set_env_var "${target_dir}" MAILHOG_SMTP_PORT "${MAILHOG_SMTP_PORT}"
   trockendock_set_env_var "${target_dir}" WP_DB_PASSWORD "${db_password}"
   trockendock_set_env_var "${target_dir}" WP_DB_ROOT_PASSWORD "${db_root_password}"
+  if [[ -n "$source_url" ]]; then
+    trockendock_set_env_var "${target_dir}" MIGRATION_SOURCE_URL "${source_url}"
+  fi
 
   sed -i "s/your-theme/${theme_slug}/g" "${target_dir}/.gitignore"
 
@@ -157,6 +172,9 @@ wp_stack_project_create() {
   echo "  PROJECT_SLUG:    ${slug}"
   echo "  WORDPRESS_IMAGE: ${wordpress_image}"
   echo "  MARIADB_IMAGE:   ${mariadb_image}"
+  if [[ -n "$source_url" ]]; then
+    echo "  MIGRATION_SOURCE_URL: ${source_url}"
+  fi
   echo "  ports:           WP ${WP_PORT}, PMA ${PMA_PORT}, Mailhog ${MAILHOG_UI_PORT}/${MAILHOG_SMTP_PORT}"
   echo "  link hub:        ${LOCAL_DEV_INDEX_FILE}"
   echo ""

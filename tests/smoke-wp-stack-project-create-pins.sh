@@ -78,9 +78,24 @@ ok_create_from_defaults() {
   }
 }
 
+ok_create_with_source_url() {
+  unset DEFAULT_WORDPRESS_IMAGE DEFAULT_MARIADB_IMAGE
+  "${WP_STACK}" project create "${FOLDER}" \
+    --wordpress-image "wordpress:6.4.3-php8.3-apache" \
+    --mariadb-image "mariadb:10.11" \
+    --source-url "https://www.example.de" \
+    --dry-run >/tmp/wp-create-smoke.out 2>/tmp/wp-create-smoke.err
+  grep -q "MIGRATION_SOURCE_URL: https://www.example.de" /tmp/wp-create-smoke.out || {
+    echo "dry-run missing MIGRATION_SOURCE_URL" >&2
+    cat /tmp/wp-create-smoke.out >&2
+    exit 1
+  }
+}
+
 fail_create_without_pins
 fail_floating_wordpress_tag
 ok_create_with_flags
 ok_create_from_defaults
+ok_create_with_source_url
 
 echo "smoke-wp-stack-project-create-pins: ok"

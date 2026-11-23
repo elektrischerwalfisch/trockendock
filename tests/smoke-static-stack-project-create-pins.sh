@@ -74,10 +74,23 @@ ok_from_defaults() {
   }
 }
 
+ok_with_source_url() {
+  unset DEFAULT_PHP_IMAGE
+  "${STATIC_STACK}" project create "${FOLDER}" --variant static-php --php 8.3 \
+    --source-url "https://www.example.de" --dry-run \
+    >/tmp/static-create-smoke.out 2>/tmp/static-create-smoke.err
+  grep -q "MIGRATION_SOURCE_URL: https://www.example.de" /tmp/static-create-smoke.out || {
+    echo "dry-run missing MIGRATION_SOURCE_URL" >&2
+    cat /tmp/static-create-smoke.out >&2
+    exit 1
+  }
+}
+
 fail_without_php
 fail_invalid_php
 ok_with_minor
 ok_with_full_tag
 ok_from_defaults
+ok_with_source_url
 
 echo "smoke-static-stack-project-create-pins: ok"

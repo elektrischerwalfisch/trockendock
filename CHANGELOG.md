@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- feat: add static menu PHP pins and optional create source URL
 - feat: prompt WP image pins in the create menu
 - feat: add shared image pin helpers with static create pins and smoke tests
 - feat: require explicit WP/MariaDB image pins on wp-stack project create

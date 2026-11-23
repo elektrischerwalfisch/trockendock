@@ -28,10 +28,11 @@ export PATH="${TROCKENDOCK_ROOT}/stacks/static-php/bin:$PATH"
 
 ```bash
 static-stack project create <folder> --variant static-php --php 8.3
-static-stack project create <folder> --variant static-php-mailhog --php php:8.2-apache [--slug <slug>] [--dry-run]
+static-stack project create <folder> --variant static-php-mailhog --php php:8.2-apache \
+  [--source-url https://www.example.de] [--slug <slug>] [--dry-run]
 ```
 
-`--php` (or `DEFAULT_PHP_IMAGE` in `config/stack-defaults.env`) is required. Accepts bare `x.y` or full `php:x.y-apache`. Copies the chosen template to `$WEBSITES_ROOT/<folder>/`, writes `.env` (pin + next free `80Nx` port block), runs `$GENERATE_INDEX_SCRIPT`.
+`--php` (or `DEFAULT_PHP_IMAGE` in `config/stack-defaults.env`) is required. Accepts bare `x.y` or full `php:x.y-apache`. Optional `--source-url` writes `MIGRATION_SOURCE_URL` (live link in the hub). Copies the chosen template to `$WEBSITES_ROOT/<folder>/`, writes `.env` (pin + next free `80Nx` port block), runs `$GENERATE_INDEX_SCRIPT`.
 
 Onboarding: [`../../docs/static-php/getting-started.md`](../../docs/static-php/getting-started.md) · platform entry: [`../../docs/getting-started.md`](../../docs/getting-started.md).
 

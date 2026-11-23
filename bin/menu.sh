@@ -137,7 +137,7 @@ EOF
 }
 
 menu_wordpress_create() {
-  local folder theme dry_args=()
+  local folder theme source_url=""
   local def_wp="" def_php="" def_mdb="" parts
   local wp_core php_minor mariadb_minor wordpress_image mariadb_image
   local create_args=()
@@ -188,6 +188,10 @@ EOF
   create_args=(project create "$folder" --wordpress-image "$wordpress_image" --mariadb-image "$mariadb_image")
   if [[ -n "$theme" ]]; then
     create_args+=(--theme "$theme")
+  fi
+  source_url="$(menu_prompt "Live site URL (optional, empty = no Live link)")"
+  if [[ -n "$source_url" ]]; then
+    create_args+=(--source-url "$source_url")
   fi
   if menu_confirm_yes "Dry run only"; then
     create_args+=(--dry-run)
@@ -271,7 +275,9 @@ EOF
 }
 
 menu_static_create() {
-  local folder variant dry_args=()
+  local folder variant source_url="" create_args=()
+  local def_php="" php_minor php_image
+
   folder="$(menu_prompt "Project folder name under \$WEBSITES_ROOT")"
   [[ -n "$folder" ]] || return 0
   cat <<'EOF'
@@ -291,10 +297,41 @@ EOF
       return 0
       ;;
   esac
-  if menu_confirm_yes "Dry run only"; then
-    dry_args+=(--dry-run)
+
+  if [[ -n "${DEFAULT_PHP_IMAGE:-}" ]]; then
+    def_php="$(trockendock_parse_php_image_minor "$DEFAULT_PHP_IMAGE" || true)"
   fi
-  menu_run "$STATIC_STACK" project create "$folder" --variant "$variant" "${dry_args[@]}"
+
+  cat <<'EOF'
+
+Image pin
+─────────
+  PHP tags: https://hub.docker.com/_/php/tags
+  Format:   php:<PHP>-apache
+
+EOF
+  if [[ -n "${DEFAULT_PHP_IMAGE:-}" ]]; then
+    echo "  stack-defaults: PHP_IMAGE=${DEFAULT_PHP_IMAGE}"
+    echo
+  fi
+
+  php_minor="$(menu_prompt_pin "PHP minor" "x.y" "$def_php")"
+  php_image="$(trockendock_format_php_image "$php_minor")"
+
+  if ! trockendock_validate_php_image "$php_image"; then
+    menu_pause
+    return 0
+  fi
+
+  create_args=(project create "$folder" --variant "$variant" --php "$php_image")
+  source_url="$(menu_prompt "Live site URL (optional, empty = no Live link)")"
+  if [[ -n "$source_url" ]]; then
+    create_args+=(--source-url "$source_url")
+  fi
+  if menu_confirm_yes "Dry run only"; then
+    create_args+=(--dry-run)
+  fi
+  menu_run "$STATIC_STACK" "${create_args[@]}"
 }
 
 menu_static() {

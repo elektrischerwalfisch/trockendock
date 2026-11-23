@@ -54,6 +54,18 @@ source config/load-config.sh
 
 Details: [`../config/README.md`](../config/README.md).
 
+## Stack image soft defaults (optional)
+
+Create once if you want Enter / omitted CLI flags to reuse your preferred pins:
+
+```bash
+cd "$TROCKENDOCK_ROOT"
+cp config/stack-defaults.env.example config/stack-defaults.env
+# uncomment and set DEFAULT_WORDPRESS_IMAGE / DEFAULT_MARIADB_IMAGE / DEFAULT_PHP_IMAGE
+```
+
+Without this file, create (menu or CLI) requires explicit image pins. The tracked `.example` is never used as a version fallback. Details: [`../config/README.md`](../config/README.md).
+
 ## First project
 
 Prefer the menu, then CLI:
