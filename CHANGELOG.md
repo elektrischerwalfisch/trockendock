@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- feat: propose and write image pins on wp-stack migrate
 - feat: add static menu PHP pins and optional create source URL
 - feat: prompt WP image pins in the create menu
 - feat: add shared image pin helpers with static create pins and smoke tests

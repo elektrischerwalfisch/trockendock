@@ -32,17 +32,25 @@ empty folder. backups/ is never touched. Create import/ only for that run.
 By default this only reports the plan (dry run). Add --yes to execute.
 
 Options:
-  --project <folder>  Project under $WEBSITES_ROOT (default: current directory)
-  --only <mode>       What to restore: all (default), content, or db
-  --yes               Actually perform the migration (otherwise dry run)
-  --chown-www         After wp-content restore, chown to 33:33 (www-data; sudo)
-  -h, --help          Show this help
+  --project <folder>           Project under $WEBSITES_ROOT (default: current directory)
+  --only <mode>                What to restore: all (default), content, or db
+  --wordpress-image <tag>      Override proposed WORDPRESS_IMAGE pin
+  --mariadb-image <tag>        Override proposed MARIADB_IMAGE pin
+  --php <x.y>                  PHP minor when composing a pin from backup WP version
+  --yes                        Actually perform the migration (otherwise dry run)
+  --chown-www                  After wp-content restore, chown to 33:33 (www-data; sudo)
+  -h, --help                   Show this help
+
+Image pins: dry-run prints the proposal; --yes writes them to .env before compose.
+WP core comes from backup detect (manifest) when possible; PHP/MariaDB from the
+current project pin, stack-defaults, or --php / --*-image overrides.
 
 Examples:
   wp-stack migrate --project example-site
   wp-stack migrate --project example-site --yes
   wp-stack migrate --project example-site --only content --yes
   wp-stack migrate --project example-site --only db --yes
+  wp-stack migrate --project example-site --php 8.2 --yes
 EOF
 }
 
@@ -192,34 +200,119 @@ wp_stack_detect_table_prefix_from_sql() {
   printf '%s' "$prefix"
 }
 
-# Compare the backup's WordPress version (from manifest.json) with the
-# configured WORDPRESS_IMAGE tag. Only reports/warns — never changes anything.
-# PHP and database server versions are intentionally out of scope (BackWPup
-# backups do not record them reliably).
-wp_stack_migrate_check_wp_version() {
-  local wp_ver="$1" image="$2"
-  local tag pinned=""
+# Resolve PHP minor for migrate pins: --php, then current WORDPRESS_IMAGE, then
+# DEFAULT_WORDPRESS_IMAGE. Prints the minor or returns 1.
+wp_stack_migrate_resolve_php_minor() {
+  local php_override="$1" current_wp_image="$2"
+  local parts php_minor=""
 
-  [[ -n "$wp_ver" ]] || return 0
-
-  tag="${image##*:}"
-  # A WordPress-pinned tag starts with a version number, e.g. "6.5-php8.3-apache".
-  if [[ "$tag" =~ ^([0-9]+(\.[0-9]+)*) ]]; then
-    pinned="${BASH_REMATCH[1]}"
-  fi
-
-  if [[ -z "$pinned" ]]; then
-    wp_stack_info "note: image '${image}' tracks the latest WordPress; backup is ${wp_ver}."
-    echo "  To match the backup exactly, pin a versioned tag, e.g.:"
-    echo "      WORDPRESS_IMAGE=wordpress:${wp_ver}-php8.3-apache"
+  if [[ -n "$php_override" ]]; then
+    printf '%s' "$php_override"
     return 0
   fi
-
-  if [[ "${pinned%%.*}" != "${wp_ver%%.*}" ]]; then
-    wp_stack_info "WARNING: WordPress major mismatch — backup ${wp_ver} vs image ${pinned} (${image})."
-    echo "  Importing into a different major version can trigger DB upgrades."
-    echo "  Adjust WORDPRESS_IMAGE in .env if you want to match the source."
+  if [[ -n "$current_wp_image" ]] && parts="$(trockendock_parse_wordpress_image_parts "$current_wp_image")"; then
+    read -r _ php_minor <<<"$parts"
+    [[ -n "$php_minor" ]] && {
+      printf '%s' "$php_minor"
+      return 0
+    }
   fi
+  if [[ -n "${DEFAULT_WORDPRESS_IMAGE:-}" ]] && parts="$(trockendock_parse_wordpress_image_parts "$DEFAULT_WORDPRESS_IMAGE")"; then
+    read -r _ php_minor <<<"$parts"
+    [[ -n "$php_minor" ]] && {
+      printf '%s' "$php_minor"
+      return 0
+    }
+  fi
+  return 1
+}
+
+# Resolve migrate image pins into MIGRATE_PROPOSED_WORDPRESS_IMAGE /
+# MIGRATE_PROPOSED_MARIADB_IMAGE and human-readable source notes
+# (MIGRATE_PIN_WP_SOURCE / MIGRATE_PIN_MDB_SOURCE).
+wp_stack_migrate_resolve_image_pins() {
+  local wp_ver="$1"
+  local current_wp_image="$2"
+  local current_mdb_image="$3"
+  local wp_override="$4"
+  local mdb_override="$5"
+  local php_override="$6"
+  local php_minor="" wp_core=""
+
+  MIGRATE_PROPOSED_WORDPRESS_IMAGE=""
+  MIGRATE_PROPOSED_MARIADB_IMAGE=""
+  MIGRATE_PIN_WP_SOURCE=""
+  MIGRATE_PIN_MDB_SOURCE=""
+
+  if [[ -n "$wp_override" ]]; then
+    MIGRATE_PROPOSED_WORDPRESS_IMAGE="$wp_override"
+    MIGRATE_PIN_WP_SOURCE="override (--wordpress-image)"
+  elif [[ -n "$wp_ver" ]]; then
+    if ! php_minor="$(wp_stack_migrate_resolve_php_minor "$php_override" "$current_wp_image")"; then
+      MIGRATE_PIN_WP_SOURCE="unresolved (backup WP ${wp_ver}; need --php, a pinned WORDPRESS_IMAGE, or DEFAULT_WORDPRESS_IMAGE)"
+    else
+      MIGRATE_PROPOSED_WORDPRESS_IMAGE="$(trockendock_format_wordpress_image "$wp_ver" "$php_minor")"
+      if [[ -n "$php_override" ]]; then
+        MIGRATE_PIN_WP_SOURCE="backup WP ${wp_ver} + --php ${php_minor}"
+      else
+        MIGRATE_PIN_WP_SOURCE="backup WP ${wp_ver} + PHP ${php_minor} (from current/default pin)"
+      fi
+    fi
+  elif [[ -n "$current_wp_image" ]] && trockendock_validate_wordpress_image "$current_wp_image" 2>/dev/null; then
+    MIGRATE_PROPOSED_WORDPRESS_IMAGE="$current_wp_image"
+    MIGRATE_PIN_WP_SOURCE="keep current project pin (no backup WP version detected)"
+  elif [[ -n "${DEFAULT_WORDPRESS_IMAGE:-}" ]]; then
+    MIGRATE_PROPOSED_WORDPRESS_IMAGE="$DEFAULT_WORDPRESS_IMAGE"
+    MIGRATE_PIN_WP_SOURCE="stack-defaults (no backup WP version detected)"
+  else
+    MIGRATE_PIN_WP_SOURCE="unresolved (no backup WP version, no pinned current image, no stack-defaults)"
+  fi
+
+  if [[ -n "$mdb_override" ]]; then
+    MIGRATE_PROPOSED_MARIADB_IMAGE="$mdb_override"
+    MIGRATE_PIN_MDB_SOURCE="override (--mariadb-image)"
+  elif [[ -n "$current_mdb_image" ]] && trockendock_validate_mariadb_image "$current_mdb_image" 2>/dev/null; then
+    MIGRATE_PROPOSED_MARIADB_IMAGE="$current_mdb_image"
+    MIGRATE_PIN_MDB_SOURCE="keep current project pin"
+  elif [[ -n "${DEFAULT_MARIADB_IMAGE:-}" ]]; then
+    MIGRATE_PROPOSED_MARIADB_IMAGE="$DEFAULT_MARIADB_IMAGE"
+    MIGRATE_PIN_MDB_SOURCE="stack-defaults"
+  else
+    MIGRATE_PIN_MDB_SOURCE="unresolved (no pinned current MariaDB image, no stack-defaults, no --mariadb-image)"
+  fi
+}
+
+wp_stack_migrate_print_image_pin_plan() {
+  local wp_ver="$1"
+  echo "  image pins:"
+  echo "    WORDPRESS_IMAGE: ${MIGRATE_PROPOSED_WORDPRESS_IMAGE:-'(none)'}  [${MIGRATE_PIN_WP_SOURCE}]"
+  echo "    MARIADB_IMAGE:   ${MIGRATE_PROPOSED_MARIADB_IMAGE:-'(none)'}  [${MIGRATE_PIN_MDB_SOURCE}]"
+  if [[ -n "$wp_ver" && -n "${MIGRATE_PROPOSED_WORDPRESS_IMAGE:-}" ]]; then
+    local parts pinned=""
+    if parts="$(trockendock_parse_wordpress_image_parts "$MIGRATE_PROPOSED_WORDPRESS_IMAGE")"; then
+      read -r pinned _ <<<"$parts"
+      if [[ -n "$pinned" && "${pinned%%.*}" != "${wp_ver%%.*}" ]]; then
+        wp_stack_info "WARNING: WordPress major mismatch — backup ${wp_ver} vs proposed ${pinned}."
+        echo "  Importing into a different major version can trigger DB upgrades."
+      fi
+    fi
+  fi
+}
+
+wp_stack_migrate_apply_image_pins() {
+  local dir="$1"
+
+  if [[ -z "${MIGRATE_PROPOSED_WORDPRESS_IMAGE:-}" || -z "${MIGRATE_PROPOSED_MARIADB_IMAGE:-}" ]]; then
+    wp_stack_die "cannot apply image pins: ${MIGRATE_PIN_WP_SOURCE}; ${MIGRATE_PIN_MDB_SOURCE}"
+  fi
+  trockendock_validate_wordpress_image "$MIGRATE_PROPOSED_WORDPRESS_IMAGE" \
+    || wp_stack_die "refusing invalid proposed WORDPRESS_IMAGE"
+  trockendock_validate_mariadb_image "$MIGRATE_PROPOSED_MARIADB_IMAGE" \
+    || wp_stack_die "refusing invalid proposed MARIADB_IMAGE"
+
+  wp_stack_set_env_var "$dir" WORDPRESS_IMAGE "$MIGRATE_PROPOSED_WORDPRESS_IMAGE"
+  wp_stack_set_env_var "$dir" MARIADB_IMAGE "$MIGRATE_PROPOSED_MARIADB_IMAGE"
+  wp_stack_load_env "$dir"
 }
 
 # Wait until the db is fully initialized: a plain ping answers "alive" already
@@ -275,6 +368,7 @@ wp_stack_migrate_restore_wpcontent() {
 
 wp_stack_migrate() {
   local project="" do_run=0 chown_www=0 only_mode="all"
+  local wordpress_image_override="" mariadb_image_override="" php_override=""
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -290,6 +384,21 @@ wp_stack_migrate() {
       --only)
         [[ $# -ge 2 ]] || wp_stack_die "--only requires a value (all, content, or db)"
         only_mode="$2"
+        shift 2
+        ;;
+      --wordpress-image)
+        [[ $# -ge 2 ]] || wp_stack_die "--wordpress-image requires a value"
+        wordpress_image_override="$2"
+        shift 2
+        ;;
+      --mariadb-image)
+        [[ $# -ge 2 ]] || wp_stack_die "--mariadb-image requires a value"
+        mariadb_image_override="$2"
+        shift 2
+        ;;
+      --php)
+        [[ $# -ge 2 ]] || wp_stack_die "--php requires a value"
+        php_override="$2"
         shift 2
         ;;
       --yes)
@@ -418,7 +527,7 @@ wp_stack_migrate() {
   else
     echo "  sql dump:      skipped"
   fi
-  echo "  WordPress:     backup ${wp_ver:-(unknown)} / image ${WORDPRESS_IMAGE}"
+  echo "  WordPress:     backup ${wp_ver:-(unknown)} / current image ${WORDPRESS_IMAGE:-(unset)}"
   case "$only_mode" in
     all)     echo "  after --yes:   import/ emptied, folder kept" ;;
     content) echo "  after --yes:   import/wp-content removed" ;;
@@ -426,7 +535,15 @@ wp_stack_migrate() {
   esac
   echo ""
 
-  wp_stack_migrate_check_wp_version "$wp_ver" "$WORDPRESS_IMAGE"
+  wp_stack_migrate_resolve_image_pins \
+    "$wp_ver" \
+    "${WORDPRESS_IMAGE:-}" \
+    "${MARIADB_IMAGE:-}" \
+    "$wordpress_image_override" \
+    "$mariadb_image_override" \
+    "$php_override"
+  wp_stack_migrate_print_image_pin_plan "$wp_ver"
+  echo ""
 
   if [[ "$do_content" -eq 1 ]]; then
     [[ -n "$wpc" ]] || wp_stack_die "no wp-content found in backup"
@@ -437,11 +554,14 @@ wp_stack_migrate() {
   fi
 
   if [[ "$do_run" -eq 0 ]]; then
-    wp_stack_info "dry run — no changes made. Re-run with --yes to execute."
+    wp_stack_info "dry run — no changes made. Re-run with --yes to execute (writes image pins to .env)."
     return 0
   fi
 
   local perm_note=""
+
+  # Apply image pins before compose so containers use the proposed tags.
+  wp_stack_migrate_apply_image_pins "$dir"
 
   # Apply Multisite .env before first compose up so wp-config gets the defines.
   if [[ "$is_multisite" -eq 1 ]]; then

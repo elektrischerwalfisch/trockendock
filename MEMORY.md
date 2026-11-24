@@ -10,7 +10,7 @@
 **Date**: 2026-11-23
 **Phase**: Phase 2 · Hardening & polish
 
-**Working on**: Stack image pin lifecycle — #1 active (create + menu + live URL done; migrate next)
+**Working on**: Stack image pin lifecycle — #1 active (migrate pin dry-run/--yes write done; URL prompt + menu migrate + docs next)
 
 **Next steps**:
 - [ ] 1) Pin on create/migrate (`docs/issue-worklogs/unassigned/pin-stack-image-versions-on-create-migrate.md`)
@@ -43,6 +43,7 @@
 - 2026-11-23 #1: menu WordPress create prompts WP/PHP/MariaDB pins (placeholders + Hub; Enter = stack-defaults)
 - 2026-11-23 #1 worklog marked active; menu Static PHP create prompts PHP pin (Hub + stack-defaults)
 - 2026-11-23 #1: optional `--source-url` / menu live URL on WP+static create; install docs for `stack-defaults.env`
+- 2026-11-24 #1: migrate dry-run proposes image pins; `--yes` writes them (backup WP + PHP/MDB from current/defaults/flags)
 
 ---
 
