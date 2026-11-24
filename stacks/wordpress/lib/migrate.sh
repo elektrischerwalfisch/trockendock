@@ -37,13 +37,16 @@ Options:
   --wordpress-image <tag>      Override proposed WORDPRESS_IMAGE pin
   --mariadb-image <tag>        Override proposed MARIADB_IMAGE pin
   --php <x.y>                  PHP minor when composing a pin from backup WP version
+  --source-url <url>           Live site URL when not detected (detect-first)
   --yes                        Actually perform the migration (otherwise dry run)
   --chown-www                  After wp-content restore, chown to 33:33 (www-data; sudo)
   -h, --help                   Show this help
 
 Image pins: dry-run prints the proposal; --yes writes them to .env before compose.
+Messages distinguish "pin applied" (detect/defaults/keep) vs "override used" (flags).
 WP core comes from backup detect (manifest) when possible; PHP/MariaDB from the
 current project pin, stack-defaults, or --php / --*-image overrides.
+Source URL: manifest / SQL / existing .env first; --source-url only if still empty.
 
 Examples:
   wp-stack migrate --project example-site
@@ -282,11 +285,24 @@ wp_stack_migrate_resolve_image_pins() {
   fi
 }
 
+# "override used" for flag overrides; "pin applied" for detect/defaults/keep.
+wp_stack_migrate_pin_action_label() {
+  local source="$1"
+  if [[ "$source" == override* ]]; then
+    printf 'override used'
+  else
+    printf 'pin applied'
+  fi
+}
+
 wp_stack_migrate_print_image_pin_plan() {
   local wp_ver="$1"
-  echo "  image pins:"
-  echo "    WORDPRESS_IMAGE: ${MIGRATE_PROPOSED_WORDPRESS_IMAGE:-'(none)'}  [${MIGRATE_PIN_WP_SOURCE}]"
-  echo "    MARIADB_IMAGE:   ${MIGRATE_PROPOSED_MARIADB_IMAGE:-'(none)'}  [${MIGRATE_PIN_MDB_SOURCE}]"
+  local wp_action mdb_action
+  wp_action="$(wp_stack_migrate_pin_action_label "$MIGRATE_PIN_WP_SOURCE")"
+  mdb_action="$(wp_stack_migrate_pin_action_label "$MIGRATE_PIN_MDB_SOURCE")"
+  echo "  image pins (dry-run proposal; --yes writes to .env):"
+  echo "    WORDPRESS_IMAGE: ${MIGRATE_PROPOSED_WORDPRESS_IMAGE:-'(none)'}  [${wp_action} — ${MIGRATE_PIN_WP_SOURCE}]"
+  echo "    MARIADB_IMAGE:   ${MIGRATE_PROPOSED_MARIADB_IMAGE:-'(none)'}  [${mdb_action} — ${MIGRATE_PIN_MDB_SOURCE}]"
   if [[ -n "$wp_ver" && -n "${MIGRATE_PROPOSED_WORDPRESS_IMAGE:-}" ]]; then
     local parts pinned=""
     if parts="$(trockendock_parse_wordpress_image_parts "$MIGRATE_PROPOSED_WORDPRESS_IMAGE")"; then
@@ -301,6 +317,7 @@ wp_stack_migrate_print_image_pin_plan() {
 
 wp_stack_migrate_apply_image_pins() {
   local dir="$1"
+  local wp_action mdb_action
 
   if [[ -z "${MIGRATE_PROPOSED_WORDPRESS_IMAGE:-}" || -z "${MIGRATE_PROPOSED_MARIADB_IMAGE:-}" ]]; then
     wp_stack_die "cannot apply image pins: ${MIGRATE_PIN_WP_SOURCE}; ${MIGRATE_PIN_MDB_SOURCE}"
@@ -310,8 +327,14 @@ wp_stack_migrate_apply_image_pins() {
   trockendock_validate_mariadb_image "$MIGRATE_PROPOSED_MARIADB_IMAGE" \
     || wp_stack_die "refusing invalid proposed MARIADB_IMAGE"
 
-  wp_stack_set_env_var "$dir" WORDPRESS_IMAGE "$MIGRATE_PROPOSED_WORDPRESS_IMAGE"
-  wp_stack_set_env_var "$dir" MARIADB_IMAGE "$MIGRATE_PROPOSED_MARIADB_IMAGE"
+  wp_action="$(wp_stack_migrate_pin_action_label "$MIGRATE_PIN_WP_SOURCE")"
+  mdb_action="$(wp_stack_migrate_pin_action_label "$MIGRATE_PIN_MDB_SOURCE")"
+  wp_stack_info "${wp_action}: WORDPRESS_IMAGE=${MIGRATE_PROPOSED_WORDPRESS_IMAGE} (${MIGRATE_PIN_WP_SOURCE})"
+  trockendock_set_env_var "$dir" WORDPRESS_IMAGE "$MIGRATE_PROPOSED_WORDPRESS_IMAGE" \
+    || wp_stack_die "failed to set WORDPRESS_IMAGE in ${dir}/.env"
+  wp_stack_info "${mdb_action}: MARIADB_IMAGE=${MIGRATE_PROPOSED_MARIADB_IMAGE} (${MIGRATE_PIN_MDB_SOURCE})"
+  trockendock_set_env_var "$dir" MARIADB_IMAGE "$MIGRATE_PROPOSED_MARIADB_IMAGE" \
+    || wp_stack_die "failed to set MARIADB_IMAGE in ${dir}/.env"
   wp_stack_load_env "$dir"
 }
 
@@ -369,6 +392,7 @@ wp_stack_migrate_restore_wpcontent() {
 wp_stack_migrate() {
   local project="" do_run=0 chown_www=0 only_mode="all"
   local wordpress_image_override="" mariadb_image_override="" php_override=""
+  local source_url_flag=""
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -399,6 +423,11 @@ wp_stack_migrate() {
       --php)
         [[ $# -ge 2 ]] || wp_stack_die "--php requires a value"
         php_override="$2"
+        shift 2
+        ;;
+      --source-url)
+        [[ $# -ge 2 ]] || wp_stack_die "--source-url requires a value"
+        source_url_flag="$2"
         shift 2
         ;;
       --yes)
@@ -477,7 +506,7 @@ wp_stack_migrate() {
     sql="${sql_files[0]}"
   fi
 
-  local manifest="" prefix="" src_url="" wp_ver=""
+  local manifest="" prefix="" src_url="" src_url_source="" wp_ver=""
   if [[ -f "${import_root}/manifest.json" ]]; then
     manifest="${import_root}/manifest.json"
   fi
@@ -486,6 +515,7 @@ wp_stack_migrate() {
     prefix="$(grep -oE '"prefix":"[^"]*"' "$manifest" | head -1 | sed -E 's/.*:"([^"]*)"/\1/' || true)"
     src_url="$(grep -oE '"url":"[^"]*"' "$manifest" | head -1 | sed -E 's/.*:"([^"]*)"/\1/' | sed 's#\\/#/#g' || true)"
     wp_ver="$(grep -oE '"version":"[^"]*"' "$manifest" | head -1 | sed -E 's/.*:"([^"]*)"/\1/' || true)"
+    [[ -n "$src_url" ]] && src_url_source="detected (manifest.json)"
   fi
 
   if [[ -z "$prefix" && -n "$sql" ]]; then
@@ -493,9 +523,21 @@ wp_stack_migrate() {
   fi
   if [[ -z "$src_url" && -n "$sql" && "$sql" != *.gz ]]; then
     src_url="$(grep -aoE "'(siteurl|home)','https?://[^']+'" "$sql" | head -1 | sed -E "s/.*,'(https?:\/\/[^']+)'/\1/" || true)"
+    [[ -n "$src_url" ]] && src_url_source="detected (SQL dump)"
   fi
   if [[ -z "$src_url" && -n "${MIGRATION_SOURCE_URL:-}" ]]; then
     src_url="$MIGRATION_SOURCE_URL"
+    src_url_source="existing .env MIGRATION_SOURCE_URL"
+  fi
+  # Detect-first: --source-url only fills a gap (does not override detection).
+  if [[ -z "$src_url" && -n "$source_url_flag" ]]; then
+    if [[ ! "$source_url_flag" =~ ^https?:// ]]; then
+      wp_stack_die "invalid --source-url '${source_url_flag}' (expected http:// or https:// URL)"
+    fi
+    src_url="$source_url_flag"
+    src_url_source="flag (--source-url)"
+  elif [[ -n "$src_url" && -n "$source_url_flag" && "$source_url_flag" != "$src_url" ]]; then
+    wp_stack_info "note: ignoring --source-url (detect-first already has ${src_url_source}: ${src_url})"
   fi
 
   local is_multisite=0 multisite_subdomain=0
@@ -516,7 +558,11 @@ wp_stack_migrate() {
   if [[ "$do_db" -eq 1 ]]; then
     echo "  sql dump:      ${sql:-NOT FOUND}"
     echo "  table prefix:  ${prefix:-(unknown — keep current .env)}"
-    echo "  source URL:    ${src_url:-(unknown)}"
+    if [[ -n "$src_url" ]]; then
+      echo "  source URL:    ${src_url}  [${src_url_source}]"
+    else
+      echo "  source URL:    (unknown — pass --source-url or set MIGRATION_SOURCE_URL)"
+    fi
     echo "  target URL:    http://localhost:${WP_PORT}"
     if [[ "$is_multisite" -eq 1 ]]; then
       echo "  multisite:     yes (WP_MULTISITE=1, SUBDOMAIN=${multisite_subdomain}, domain=localhost:${WP_PORT})"
@@ -550,7 +596,7 @@ wp_stack_migrate() {
   fi
   if [[ "$do_db" -eq 1 ]]; then
     [[ -n "$sql" ]] || wp_stack_die "no .sql dump found in backup"
-    [[ -n "$src_url" ]] || wp_stack_die "source URL not detected — add MIGRATION_SOURCE_URL to .env or use a backup with manifest.json"
+    [[ -n "$src_url" ]] || wp_stack_die "source URL not detected — pass --source-url, set MIGRATION_SOURCE_URL in .env, or use a backup with manifest.json / readable SQL siteurl"
   fi
 
   if [[ "$do_run" -eq 0 ]]; then

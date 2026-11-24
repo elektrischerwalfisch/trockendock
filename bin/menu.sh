@@ -200,7 +200,7 @@ EOF
 }
 
 menu_wordpress_migrate() {
-  local folder args=(migrate)
+  local folder source_url="" args=(migrate)
   cat <<'EOF'
 
 Migrate
@@ -213,12 +213,19 @@ Create an import/ folder in the project and unpack exactly one backup directly i
 
 No extra folder around those entries. A successful run empties import/.
 
+Image pins: dry-run shows "pin applied" (detect/defaults) vs "override used" (flags).
+Source URL: auto-detect first (manifest / SQL / .env); prompt below only if needed.
+
 EOF
   folder="$(menu_prompt "Project folder under \$WEBSITES_ROOT")"
   [[ -n "$folder" ]] || return 0
   args+=(--project "$folder")
   if ! menu_confirm_yes "Backup is laid out in import/ as shown above"; then
     return 0
+  fi
+  source_url="$(menu_prompt "Live site URL if not auto-detected (empty = detect only)")"
+  if [[ -n "$source_url" ]]; then
+    args+=(--source-url "$source_url")
   fi
   if menu_confirm_yes "Execute migration (--yes; otherwise dry run)"; then
     args+=(--yes)

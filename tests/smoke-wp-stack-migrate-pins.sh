@@ -52,13 +52,18 @@ grep -q "WORDPRESS_IMAGE: wordpress:6.4.3-php8.2-apache" "$out" || {
   cat "$out" "$err" >&2
   exit 1
 }
-grep -q "backup WP 6.4.3" "$out" || {
-  echo "expected backup WP source note" >&2
+grep -q "pin applied — backup WP 6.4.3" "$out" || {
+  echo "expected pin applied messaging for backup WP" >&2
   cat "$out" >&2
   exit 1
 }
 grep -q "MARIADB_IMAGE:   mariadb:10.11" "$out" || {
   echo "expected keep current MariaDB pin" >&2
+  cat "$out" >&2
+  exit 1
+}
+grep -q "pin applied — keep current project pin" "$out" || {
+  echo "expected pin applied messaging for MariaDB keep" >&2
   cat "$out" >&2
   exit 1
 }
@@ -79,14 +84,49 @@ grep -q "WORDPRESS_IMAGE: wordpress:6.4.3-php8.1-apache" "$out" || {
   cat "$out" >&2
   exit 1
 }
-grep -q "override (--wordpress-image)" "$out" || {
-  echo "expected override source note" >&2
+grep -q "override used — override (--wordpress-image)" "$out" || {
+  echo "expected override used messaging" >&2
   cat "$out" >&2
   exit 1
 }
 grep -q "MARIADB_IMAGE:   mariadb:10.6" "$out" || {
   echo "expected --mariadb-image override in plan" >&2
   cat "$out" >&2
+  exit 1
+}
+
+# --only db prints source URL; SQL required
+cat >"${PROJECT_DIR}/import/smoke.sql" <<'EOF'
+INSERT INTO `wp_options` VALUES (1,'siteurl','https://from-sql.example.de','yes');
+EOF
+
+# Detect-first: manifest wins over --source-url
+"${WP_STACK}" migrate --project "${FOLDER}" --only db \
+  --source-url "https://ignored.example.de" \
+  >"$out" 2>"$err"
+grep -q "source URL:    https://www.example.de  \\[detected (manifest.json)\\]" "$out" || {
+  echo "expected manifest detect-first for source URL" >&2
+  cat "$out" "$err" >&2
+  exit 1
+}
+grep -q "ignoring --source-url" "$out" || {
+  echo "expected note that --source-url was ignored (detect-first)" >&2
+  cat "$out" "$err" >&2
+  exit 1
+}
+
+# Source URL flag fills gap when detection empty
+rm -f "${PROJECT_DIR}/import/manifest.json"
+# Remove siteurl from SQL so flag is the only source
+cat >"${PROJECT_DIR}/import/smoke.sql" <<'EOF'
+INSERT INTO `wp_options` VALUES (1,'blogname','Smoke','yes');
+EOF
+"${WP_STACK}" migrate --project "${FOLDER}" --only db \
+  --source-url "https://flag-only.example.de" \
+  >"$out" 2>"$err"
+grep -q "source URL:    https://flag-only.example.de  \\[flag (--source-url)\\]" "$out" || {
+  echo "expected --source-url when detection empty" >&2
+  cat "$out" "$err" >&2
   exit 1
 }
 
