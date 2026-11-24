@@ -2,7 +2,7 @@
 
 PHP and WordPress Core come from the Docker image tag in `.env` (`WORDPRESS_IMAGE`), not from wp-admin settings.
 
-This flow is **not** wrapped by `./start-menu.sh` — edit `.env` and use Compose in the project folder. A guided CLI/menu bump (and optional refresh of local `config/stack-defaults.env`) is planned as worklog [#2](../issue-worklogs/unassigned/guided-image-version-bump.md); keep this page as the manual fallback until then.
+This flow is **not** wrapped by `./start-menu.sh` — edit `.env` and use Compose in the project folder.
 
 ## Steps
 
@@ -46,11 +46,10 @@ After a Core bump on Multisite, run the network DB upgrade: [`multisite-convert.
 
 ## Related
 
-| Topic                 | Path                                                                                                                                                                             |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Ownership             | [`getting-started.md`](getting-started.md#ownership-wp-content)                                                                                                                  |
-| Daily Compose         | [`../getting-started.md`](../getting-started.md#daily-commands)                                                                                                                  |
-| Create / migrate pins | [`getting-started.md`](getting-started.md) · [`migration.md`](migration.md)                                                                                                      |
-| Soft defaults         | [`../../config/README.md`](../../config/README.md)                                                                                                                               |
-| Guided bump (planned) | [`../issue-worklogs/unassigned/guided-image-version-bump.md`](../issue-worklogs/unassigned/guided-image-version-bump.md) (#2)                                                    |
-| Hub Live / versions   | [`../issue-worklogs/unassigned/show-link-hub-configured-versions.md`](../issue-worklogs/unassigned/show-link-hub-configured-versions.md) (#3; Live needs `MIGRATION_SOURCE_URL`) |
+| Topic         | Path                                                            |
+| ------------- | --------------------------------------------------------------- |
+| Ownership     | [`getting-started.md`](getting-started.md#ownership-wp-content) |
+| Daily Compose | [`../getting-started.md`](../getting-started.md#daily-commands) |
+| Create        | [`getting-started.md`](getting-started.md)                      |
+| Migrate pins  | [`migration.md`](migration.md)                                  |
+| Soft defaults | [`../../config/README.md`](../../config/README.md)              |

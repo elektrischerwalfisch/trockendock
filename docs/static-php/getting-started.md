@@ -15,7 +15,7 @@ cd "$TROCKENDOCK_ROOT"
 
 → Static PHP → Create project · Platform → Start / Stop / Refresh link hub. CLI below is the equivalent.
 
-Menu create prompts for a PHP pin (placeholder + Docker Hub tags link); Enter uses `DEFAULT_PHP_IMAGE` from local `config/stack-defaults.env` when set. See [`../getting-started.md`](../getting-started.md#menu-image-pin-ux).
+Menu pin UX: [`../getting-started.md`](../getting-started.md#menu-image-pin-ux).
 
 ## Variants
 
@@ -26,7 +26,7 @@ Menu create prompts for a PHP pin (placeholder + Docker Hub tags link); Enter us
 
 ## Create + start
 
-`PHP_IMAGE` is **required**. Pass `--php` (bare `x.y` or full `php:x.y-apache`), or set `DEFAULT_PHP_IMAGE` in `config/stack-defaults.env`. Optional `--source-url` writes `MIGRATION_SOURCE_URL` (hub Live link).
+`PHP_IMAGE` is **required** (`--php` as bare `x.y` or `php:x.y-apache`, or soft default). Optional `--source-url` → `MIGRATION_SOURCE_URL`. Soft defaults: [`../../config/README.md`](../../config/README.md).
 
 ```bash
 cd "$TROCKENDOCK_ROOT"
@@ -76,11 +76,10 @@ One `80Nx` block per project (shared with WordPress): static/php uses `…1` onl
 
 ## Related
 
-| Topic          | Path                                                                                                                 |
-| -------------- | -------------------------------------------------------------------------------------------------------------------- |
-| Area index     | [`README.md`](README.md)                                                                                             |
-| Mailhog        | [`mailhog.md`](mailhog.md)                                                                                           |
-| Menu pin UX    | [`../getting-started.md`](../getting-started.md#menu-image-pin-ux)                                                   |
-| Stack defaults | [`../../config/README.md`](../../config/README.md) (#2 may refresh)                                                  |
-| Hub Live link  | Needs `MIGRATION_SOURCE_URL` — [#3](../issue-worklogs/unassigned/show-link-hub-configured-versions.md) displays only |
-| Docs index     | [`../README.md`](../README.md)                                                                                       |
+| Topic         | Path                                                               |
+| ------------- | ------------------------------------------------------------------ |
+| Area index    | [`README.md`](README.md)                                           |
+| Mailhog       | [`mailhog.md`](mailhog.md)                                         |
+| Menu pin UX   | [`../getting-started.md`](../getting-started.md#menu-image-pin-ux) |
+| Soft defaults | [`../../config/README.md`](../../config/README.md)                 |
+| Docs index    | [`../README.md`](../README.md)                                     |

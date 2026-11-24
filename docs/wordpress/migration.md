@@ -81,7 +81,7 @@ Restore `wp-content`, wipe project DB, import SQL, rewrite URLs, recreate WordPr
 
 Multisite dumps also set `WP_MULTISITE=1` and rewrite `{prefix}blogs` / `{prefix}site` hosts. Add `--chown-www` for `wp-content` → `33:33` (uses sudo).
 
-Guided interactive image bumps after migrate stay in [`image-bump.md`](image-bump.md) (manual today; menu/CLI overhaul → issue #2).
+Later image bumps: [`image-bump.md`](image-bump.md).
 
 ## Building blocks (optional)
 
@@ -147,12 +147,11 @@ More: [`getting-started.md`](getting-started.md#ownership-wp-content).
 
 ## Related
 
-| Topic               | Path                                                                                                                 |
-| ------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| Create / ownership  | [`getting-started.md`](getting-started.md)                                                                           |
-| Image bump (manual) | [`image-bump.md`](image-bump.md) (#2 guided bump planned)                                                            |
-| Fresh → Multisite   | [`multisite-convert.md`](multisite-convert.md)                                                                       |
-| Daily Compose / hub | [`../getting-started.md`](../getting-started.md#daily-commands)                                                      |
-| Stack defaults      | [`../../config/README.md`](../../config/README.md) (#2 may refresh)                                                  |
-| Hub Live link       | Needs `MIGRATION_SOURCE_URL` — [#3](../issue-worklogs/unassigned/show-link-hub-configured-versions.md) displays only |
-| Ports               | [`../port-convention.md`](../port-convention.md)                                                                     |
+| Topic              | Path                                                               |
+| ------------------ | ------------------------------------------------------------------ |
+| Create / ownership | [`getting-started.md`](getting-started.md)                         |
+| Image bump         | [`image-bump.md`](image-bump.md)                                   |
+| Fresh → Multisite  | [`multisite-convert.md`](multisite-convert.md)                     |
+| Soft defaults      | [`../../config/README.md`](../../config/README.md)                 |
+| Menu pin UX        | [`../getting-started.md`](../getting-started.md#menu-image-pin-ux) |
+| Ports              | [`../port-convention.md`](../port-convention.md)                   |

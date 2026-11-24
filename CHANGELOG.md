@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- docs: tighten pin doc SSOTs and drop planning links from ops guides
 - docs: document stack image pin defaults menu migrate and hub cross-links
 - feat: add migrate menu pin overrides with dry-run proposals
 - feat: clarify migrate pin messaging and add detect-first source URL

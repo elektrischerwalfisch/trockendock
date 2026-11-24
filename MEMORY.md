@@ -10,7 +10,7 @@
 **Date**: 2026-11-24
 **Phase**: Phase 2 · Hardening & polish
 
-**Working on**: Stack image pin lifecycle — #1 active (section 3 docs done; smoke / close remain)
+**Working on**: Stack image pin lifecycle — #1 active (section 3 docs done + SSOT/link cleanup; smoke / close remain)
 
 **Session note**: Create hub failure was stale `TROCKENDOCK_ROOT` in `paths.env`. Temporary loader/common/menu resilience reverted — fix is correcting `paths.env` only.
 
@@ -52,6 +52,7 @@
 - 2026-11-24 #1 docs: `stack-defaults.env` parallel to `paths.env` (install + config + getting-started); `migration.md` + WP create notes for pin/live-URL policy (`image-bump.md` left for #2)
 - 2026-11-24 #1 docs: Static PHP create/`PHP_IMAGE` + defaults UX; menu pin UX section (WP + Static) in `docs/getting-started.md`
 - 2026-11-24 #1 docs: cross-links — hub Live needs `MIGRATION_SOURCE_URL` (#3); guided bump (#2) may refresh `stack-defaults.env`
+- 2026-11-24 #1 docs cleanup: SSOT roles (defaults / menu UX / migrate pins); drop #2/#3 worklog links from ops docs
 
 ---
 

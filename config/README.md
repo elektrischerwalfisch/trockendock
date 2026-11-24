@@ -2,29 +2,29 @@
 
 Central path and optional stack-default definitions for scripts and documentation reference.
 
-| File | In git | Purpose |
-|------|--------|---------|
-| `load-config.sh` | Yes | Sourced by scripts; loads paths (required) + stack defaults (optional) |
-| `paths.env.example` | Yes | Default paths (generic, safe for public repo) |
-| `paths.env` | No (gitignored) | Your machine's paths — `cp paths.env.example paths.env` |
-| `stack-defaults.env.example` | Yes | Keys / format / Hub links for image soft defaults (no create-fallback versions) |
-| `stack-defaults.env` | No (gitignored) | Your preferred image pins — `cp stack-defaults.env.example stack-defaults.env` |
+| File                         | In git          | Purpose                                                                         |
+| ---------------------------- | --------------- | ------------------------------------------------------------------------------- |
+| `load-config.sh`             | Yes             | Sourced by scripts; loads paths (required) + stack defaults (optional)          |
+| `paths.env.example`          | Yes             | Default paths (generic, safe for public repo)                                   |
+| `paths.env`                  | No (gitignored) | Your machine's paths — `cp paths.env.example paths.env`                         |
+| `stack-defaults.env.example` | Yes             | Keys / format / Hub links for image soft defaults (no create-fallback versions) |
+| `stack-defaults.env`         | No (gitignored) | Your preferred image pins — `cp stack-defaults.env.example stack-defaults.env`  |
 
 ## Variables (paths)
 
-| Variable | Meaning |
-|----------|---------|
-| `WEBSITES_ROOT` | Parent folder of site projects |
-| `TROCKENDOCK_ROOT` | This repository |
+| Variable           | Meaning                        |
+| ------------------ | ------------------------------ |
+| `WEBSITES_ROOT`    | Parent folder of site projects |
+| `TROCKENDOCK_ROOT` | This repository                |
 
 ## Derived (in `load-config.sh`)
 
-| Variable | Points to |
-|----------|-----------|
-| `LOCAL_DEV_INDEX_FILE` | `${TROCKENDOCK_ROOT}/trockendock.html` |
-| `GENERATE_INDEX_SCRIPT` | `${TROCKENDOCK_ROOT}/bin/generate-local-dev-index.sh` |
-| `STATIC_PHP_TEMPLATE` | `${TROCKENDOCK_ROOT}/templates/static-php` |
-| `STATIC_PHP_MAILHOG_TEMPLATE` | `${TROCKENDOCK_ROOT}/templates/static-php-mailhog` |
+| Variable                      | Points to                                             |
+| ----------------------------- | ----------------------------------------------------- |
+| `LOCAL_DEV_INDEX_FILE`        | `${TROCKENDOCK_ROOT}/trockendock.html`                |
+| `GENERATE_INDEX_SCRIPT`       | `${TROCKENDOCK_ROOT}/bin/generate-local-dev-index.sh` |
+| `STATIC_PHP_TEMPLATE`         | `${TROCKENDOCK_ROOT}/templates/static-php`            |
+| `STATIC_PHP_MAILHOG_TEMPLATE` | `${TROCKENDOCK_ROOT}/templates/static-php-mailhog`    |
 
 ## Stack image soft defaults (optional)
 
@@ -37,16 +37,22 @@ cp config/stack-defaults.env.example config/stack-defaults.env
 
 Missing `stack-defaults.env` is fine — create then requires explicit pins. The tracked `.example` is **never** sourced as a version fallback. Soft defaults are loaded automatically when you source `load-config.sh`.
 
-| Variable | Meaning |
-|----------|---------|
-| `STACK_DEFAULTS_LOADED` | `1` if local `stack-defaults.env` was sourced, else `0` |
+| Variable                  | Meaning                                                       |
+| ------------------------- | ------------------------------------------------------------- |
+| `STACK_DEFAULTS_LOADED`   | `1` if local `stack-defaults.env` was sourced, else `0`       |
 | `DEFAULT_WORDPRESS_IMAGE` | Soft default for WP create (`wordpress:<WP>-php<PHP>-apache`) |
-| `DEFAULT_MARIADB_IMAGE` | Soft default MariaDB tag |
-| `DEFAULT_PHP_IMAGE` | Soft default for Static PHP create (`php:<x.y>-apache`) |
+| `DEFAULT_MARIADB_IMAGE`   | Soft default MariaDB tag                                      |
+| `DEFAULT_PHP_IMAGE`       | Soft default for Static PHP create (`php:<x.y>-apache`)       |
 
 Prefixed `DEFAULT_*` keys avoid exporting `WORDPRESS_IMAGE` / `PHP_IMAGE` into the shell (Compose would override project `.env`).
 
-Aging local defaults are an operator concern. A later guided image bump (worklog [#2](../docs/issue-worklogs/unassigned/guided-image-version-bump.md)) may offer refreshing `stack-defaults.env` after a deliberate pin change — today, edit this file by hand. Create/migrate write project `.env` pins and optional `MIGRATION_SOURCE_URL`; the link hub only **displays** Live when that URL is set (worklog [#3](../docs/issue-worklogs/unassigned/show-link-hub-configured-versions.md)).
+| Situation                      | Behavior                                                |
+| ------------------------------ | ------------------------------------------------------- |
+| Local `stack-defaults.env` set | Menu Enter / omitted CLI flags may use `DEFAULT_*` pins |
+| File missing                   | Create (menu or CLI) requires explicit image pins       |
+| Tracked `.example` only        | Never sourced as a version fallback                     |
+
+Floating tags such as `wordpress:php8.3-apache` (no core pin) are rejected on create. Aging local defaults: edit this file by hand. Menu pin prompts: [`../docs/getting-started.md`](../docs/getting-started.md#menu-image-pin-ux). Migrate pin writes: [`../docs/wordpress/migration.md`](../docs/wordpress/migration.md).
 
 ## Usage in scripts
 
@@ -60,10 +66,10 @@ Override before running: `WEBSITES_ROOT=/other/path ./bin/generate-local-dev-ind
 
 In Trockendock docs and copied templates, use **variable names** — not literal paths from `paths.env`.
 
-| Instead of | Use |
-|------------|-----|
-| `~/Dokumente/00-Websites/...` | `$WEBSITES_ROOT` |
-| `.../trockendock/...` | `$TROCKENDOCK_ROOT` |
+| Instead of                    | Use                 |
+| ----------------------------- | ------------------- |
+| `~/Dokumente/00-Websites/...` | `$WEBSITES_ROOT`    |
+| `.../trockendock/...`         | `$TROCKENDOCK_ROOT` |
 
 **Standard command prefix** (from `$TROCKENDOCK_ROOT` or after `cd` there):
 

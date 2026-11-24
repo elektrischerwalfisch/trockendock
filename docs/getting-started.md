@@ -35,7 +35,7 @@ Create (and migrate pin overrides) never invent Hub-“latest” versions. Promp
 | Static PHP create            | PHP minor (→ `PHP_IMAGE=php:<x.y>-apache`) | [php/tags](https://hub.docker.com/_/php/tags)                                                                    | `DEFAULT_PHP_IMAGE` when set                                 |
 | WordPress migrate (optional) | Same placeholders after dry-run proposal   | Same as WP create                                                                                                | Keep auto proposal (detect / current / defaults)             |
 
-Optional live URL prompt on create (WP + Static) and migrate gap-fill → `MIGRATION_SOURCE_URL`. The link hub shows a **Live** link only when that variable is set (hub display package: worklog [#3](issue-worklogs/unassigned/show-link-hub-configured-versions.md); writing the value is create/migrate here). Soft defaults: [`../config/README.md`](../config/README.md). Later intentional image bumps (and optional refresh of `stack-defaults.env`) are worklog [#2](issue-worklogs/unassigned/guided-image-version-bump.md); today: manual [`wordpress/image-bump.md`](wordpress/image-bump.md). Pin lifecycle overview: [`issue-worklogs/README.md`](issue-worklogs/README.md#how-these-three-fit-together).
+Optional live URL on create (WP + Static) and migrate gap-fill → `MIGRATION_SOURCE_URL` (hub **Live** link only when set). Soft defaults: [`../config/README.md`](../config/README.md). Later image bumps: [`wordpress/image-bump.md`](wordpress/image-bump.md). Migrate pin resolution: [`wordpress/migration.md`](wordpress/migration.md).
 
 Optional — add stack CLIs to `PATH`:
 

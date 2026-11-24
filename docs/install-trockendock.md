@@ -67,13 +67,7 @@ cp config/stack-defaults.env.example config/stack-defaults.env
 # uncomment and set DEFAULT_WORDPRESS_IMAGE / DEFAULT_MARIADB_IMAGE / DEFAULT_PHP_IMAGE
 ```
 
-| Situation                      | Behavior                                                |
-| ------------------------------ | ------------------------------------------------------- |
-| Local `stack-defaults.env` set | Menu Enter / omitted CLI flags may use `DEFAULT_*` pins |
-| File missing                   | Create (menu or CLI) requires explicit image pins       |
-| Tracked `.example` only        | Never sourced as a version fallback                     |
-
-Floating tags such as `wordpress:php8.3-apache` (no core pin) are rejected on create.
+Keys, Enter/omitted-flag behavior, and “no `.example` fallback”: [`../config/README.md`](../config/README.md).
 
 ## First project
 

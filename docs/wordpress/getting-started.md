@@ -16,7 +16,7 @@ cd "$TROCKENDOCK_ROOT"
 
 ## Create + start
 
-Image pins are **required**. Pass flags, or set soft defaults in `config/stack-defaults.env` (optional Enter / omitted flags). Floating tags like `wordpress:php8.3-apache` are rejected. Optional `--source-url` writes `MIGRATION_SOURCE_URL` (hub Live link).
+Image pins are **required** (CLI flags or local soft defaults). Optional `--source-url` → `MIGRATION_SOURCE_URL`. Soft defaults: [`../../config/README.md`](../../config/README.md). Menu pin UX: [`../getting-started.md`](../getting-started.md#menu-image-pin-ux).
 
 ```bash
 cd "$TROCKENDOCK_ROOT"
@@ -27,8 +27,6 @@ cd "$TROCKENDOCK_ROOT"
   [--source-url https://www.example.de]
 ```
 
-Menu create prompts WP core / PHP / MariaDB with format placeholders and Docker Hub tag links; Enter uses local `DEFAULT_*` when set. Full menu pin UX (WP + Static): [`../getting-started.md`](../getting-started.md#menu-image-pin-ux).
-
 This copies the template, writes `.env` (pins, next free `80Nx` port block, DB passwords), and regenerates the link hub. Then:
 
 ```bash
@@ -38,7 +36,7 @@ docker compose pull && docker compose up -d
 
 Open `http://localhost:<WP_PORT>/` (port from `.env` or the link hub).
 
-More create/ops rules: [`local-workflow.md`](local-workflow.md). Soft defaults: [`../../config/README.md`](../../config/README.md).
+More create/ops rules: [`local-workflow.md`](local-workflow.md).
 
 ## Migrate (short)
 
