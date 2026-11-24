@@ -5,8 +5,9 @@ Cross-cutting onboarding. Stack-specific create and ops live under [`wordpress/g
 ## Prerequisites
 
 - **Docker Engine + Compose plugin** — required for every stack
-- **Path config** — once per machine: `cp config/paths.env.example config/paths.env` (adjust if needed); details: [`../config/README.md`](../config/README.md)
-- **Load paths** before path-dependent commands:
+- **Path config** — once per machine: `cp config/paths.env.example config/paths.env` (adjust if needed)
+- **Stack image soft defaults** (optional) — same pattern: `cp config/stack-defaults.env.example config/stack-defaults.env`, then set `DEFAULT_*` pins. Without this file, create (menu/CLI) requires explicit image flags. Details: [`../config/README.md`](../config/README.md)
+- **Load config** before path-dependent commands:
 
   ```bash
   source config/load-config.sh   # from $TROCKENDOCK_ROOT
@@ -24,6 +25,18 @@ From `$TROCKENDOCK_ROOT`:
 
 Numbered menus for WordPress, Static PHP, link hub refresh/open, Docker status, and start/stop/remove project stacks.
 
+### Menu image-pin UX
+
+Create (and migrate pin overrides) never invent Hub-“latest” versions. Prompts use **format placeholders** plus Docker Hub tag links; **Enter** applies local soft defaults only when `config/stack-defaults.env` is set — otherwise you must type pins.
+
+| Flow                         | Prompts                                    | Hub links                                                                                                        | Enter means                                                  |
+| ---------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| WordPress create             | WP core, PHP minor, MariaDB minor          | [wordpress/tags](https://hub.docker.com/_/wordpress/tags), [mariadb/tags](https://hub.docker.com/_/mariadb/tags) | `DEFAULT_WORDPRESS_IMAGE` / `DEFAULT_MARIADB_IMAGE` when set |
+| Static PHP create            | PHP minor (→ `PHP_IMAGE=php:<x.y>-apache`) | [php/tags](https://hub.docker.com/_/php/tags)                                                                    | `DEFAULT_PHP_IMAGE` when set                                 |
+| WordPress migrate (optional) | Same placeholders after dry-run proposal   | Same as WP create                                                                                                | Keep auto proposal (detect / current / defaults)             |
+
+Optional live URL prompt on create (WP + Static) and migrate gap-fill → `MIGRATION_SOURCE_URL`. The link hub shows a **Live** link only when that variable is set (hub display package: worklog [#3](issue-worklogs/unassigned/show-link-hub-configured-versions.md); writing the value is create/migrate here). Soft defaults: [`../config/README.md`](../config/README.md). Later intentional image bumps (and optional refresh of `stack-defaults.env`) are worklog [#2](issue-worklogs/unassigned/guided-image-version-bump.md); today: manual [`wordpress/image-bump.md`](wordpress/image-bump.md). Pin lifecycle overview: [`issue-worklogs/README.md`](issue-worklogs/README.md#how-these-three-fit-together).
+
 Optional — add stack CLIs to `PATH`:
 
 ```bash
@@ -33,11 +46,11 @@ export PATH="${TROCKENDOCK_ROOT}/stacks/wordpress/bin:${TROCKENDOCK_ROOT}/stacks
 
 ## Choose a stack
 
-| Goal                         | Create with                                                          | Operator guide                                                       |
-|------------------------------|----------------------------------------------------------------------|----------------------------------------------------------------------|
-| WordPress (new or migration) | `wp-stack project create <folder>`                                   | [`wordpress/getting-started.md`](wordpress/getting-started.md)       |
-| Static PHP (no Mailhog)      | `static-stack project create <folder> --variant static-php`          | [`static-php/getting-started.md`](static-php/getting-started.md)     |
-| Static PHP + Mailhog         | `static-stack project create <folder> --variant static-php-mailhog`  | [`static-php/getting-started.md`](static-php/getting-started.md)     |
+| Goal                         | Create with (pins required)                                                     | Operator guide                                                   |
+| ---------------------------- | ------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| WordPress (new or migration) | `wp-stack project create <folder> --wordpress-image … --mariadb-image …`        | [`wordpress/getting-started.md`](wordpress/getting-started.md)   |
+| Static PHP (no Mailhog)      | `static-stack project create <folder> --variant static-php --php <x.y>`         | [`static-php/getting-started.md`](static-php/getting-started.md) |
+| Static PHP + Mailhog         | `static-stack project create <folder> --variant static-php-mailhog --php <x.y>` | [`static-php/getting-started.md`](static-php/getting-started.md) |
 
 ## Daily commands
 
@@ -71,9 +84,9 @@ Port blocks: [`port-convention.md`](port-convention.md).
 
 ## Where next
 
-| Topic           | Path                                               |
-|-----------------|----------------------------------------------------|
-| Docs index      | [`README.md`](README.md)                           |
-| WordPress area  | [`wordpress/README.md`](wordpress/README.md)       |
-| Static PHP area | [`static-php/README.md`](static-php/README.md)     |
-| AI rules        | [`../AGENTS.md`](../AGENTS.md)                     |
+| Topic           | Path                                           |
+| --------------- | ---------------------------------------------- |
+| Docs index      | [`README.md`](README.md)                       |
+| WordPress area  | [`wordpress/README.md`](wordpress/README.md)   |
+| Static PHP area | [`static-php/README.md`](static-php/README.md) |
+| AI rules        | [`../AGENTS.md`](../AGENTS.md)                 |

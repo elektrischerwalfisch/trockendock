@@ -62,24 +62,27 @@ Config reference: `${TROCKENDOCK_ROOT}/config/README.md`
 
 ## Create project
 
-Preferred:
+Preferred (explicit pins, or `DEFAULT_*` from `config/stack-defaults.env`):
 
 ```bash
 source "${TROCKENDOCK_ROOT}/config/load-config.sh"
-"${TROCKENDOCK_ROOT}/stacks/wordpress/bin/wp-stack" project create <folder>
+"${TROCKENDOCK_ROOT}/stacks/wordpress/bin/wp-stack" project create <folder> \
+  --wordpress-image wordpress:<WP>-php<PHP>-apache \
+  --mariadb-image mariadb:<x.y> \
+  [--source-url https://www.example.de]
 ```
 
-Manual (same outcome): copy `templates/wordpress/` → `${WEBSITES_ROOT}/<folder>/`, copy `.env.example` → `.env`, set unique `PROJECT_SLUG` / ports / image tags in **`.env` only**.
+Manual (same outcome): copy `templates/wordpress/` → `${WEBSITES_ROOT}/<folder>/`, copy `.env.example` → `.env`, set unique `PROJECT_SLUG` / ports / **explicit** image tags in **`.env` only**.
 
 Required `.env` keys (typical): `PROJECT_SLUG`, `WORDPRESS_IMAGE`, `MARIADB_IMAGE`, `WP_PORT`, `PMA_PORT`, `MAILHOG_UI_PORT`, `MAILHOG_SMTP_PORT`, `WP_DB_NAME`, `WP_DB_USER`, `WP_DB_PASSWORD`, `WP_DB_ROOT_PASSWORD`.
 
-Stack defaults (template):
-- Images from `.env` (`WORDPRESS_IMAGE`, `MARIADB_IMAGE`)
+Stack behavior (template):
+- Images from `.env` (`WORDPRESS_IMAGE`, `MARIADB_IMAGE`) — set by create/migrate, not silent floating tags
 - Mount `./wp-content:/var/www/html/wp-content`
 - Named DB volume (e.g. `${PROJECT_SLUG}_db_data`)
-- `WORDPRESS_TABLE_PREFIX` from env
+- `WORDPRESS_TABLE_PREFIX` from env (`WP_TABLE_PREFIX`)
 
-Details: [`getting-started.md`](getting-started.md).
+Details: [`getting-started.md`](getting-started.md). Soft defaults: [`../../config/README.md`](../../config/README.md).
 
 ---
 

@@ -12,7 +12,8 @@ After install, continue with [`getting-started.md`](getting-started.md).
 ## Goal
 
 - Docker Engine + Compose plugin available for your user
-- Trockendock paths configured once
+- Trockendock paths configured once (`paths.env`)
+- Optional stack image soft defaults configured once (`stack-defaults.env`)
 - Ready to create and start a project
 
 ## Prerequisites
@@ -44,19 +45,21 @@ On **Ubuntu** (tested path):
 
 On **other OS**: use the matching guide under [Docker Engine install](https://docs.docker.com/engine/install/), then the same verify steps (`docker` / `docker compose`).
 
-## Trockendock paths (once)
+## Machine-local config (once)
+
+Both files follow the same pattern: copy the tracked `.example`, edit the gitignored local file. Details: [`../config/README.md`](../config/README.md).
+
+### Paths (`paths.env`) — required
 
 ```bash
 cd "$TROCKENDOCK_ROOT"   # this repository
-cp config/paths.env.example config/paths.env   # adjust WEBSITES_ROOT if needed
+cp config/paths.env.example config/paths.env   # adjust WEBSITES_ROOT / TROCKENDOCK_ROOT if needed
 source config/load-config.sh
 ```
 
-Details: [`../config/README.md`](../config/README.md).
+`WEBSITES_ROOT` is the parent of site projects. Keep `TROCKENDOCK_ROOT` pointed at **this** checkout (stale values break the link-hub generator).
 
-## Stack image soft defaults (optional)
-
-Create once if you want Enter / omitted CLI flags to reuse your preferred pins:
+### Stack image soft defaults (`stack-defaults.env`) — optional
 
 ```bash
 cd "$TROCKENDOCK_ROOT"
@@ -64,7 +67,13 @@ cp config/stack-defaults.env.example config/stack-defaults.env
 # uncomment and set DEFAULT_WORDPRESS_IMAGE / DEFAULT_MARIADB_IMAGE / DEFAULT_PHP_IMAGE
 ```
 
-Without this file, create (menu or CLI) requires explicit image pins. The tracked `.example` is never used as a version fallback. Details: [`../config/README.md`](../config/README.md).
+| Situation                      | Behavior                                                |
+| ------------------------------ | ------------------------------------------------------- |
+| Local `stack-defaults.env` set | Menu Enter / omitted CLI flags may use `DEFAULT_*` pins |
+| File missing                   | Create (menu or CLI) requires explicit image pins       |
+| Tracked `.example` only        | Never sourced as a version fallback                     |
+
+Floating tags such as `wordpress:php8.3-apache` (no core pin) are rejected on create.
 
 ## First project
 

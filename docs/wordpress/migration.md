@@ -15,16 +15,18 @@ Create/start basics: [`getting-started.md`](getting-started.md). CLI flags: [`..
 
 ## Before you start
 
-1. Note live WP / PHP / MariaDB versions; pin matching tags in project `.env` (`WORDPRESS_IMAGE`, `MARIADB_IMAGE`).
-2. Create the project (`wp-stack project create <folder>`) if it does not exist yet.
-3. In **`.env` only** (not `.env.example`), set at least:
+1. Create the project if it does not exist yet (`wp-stack project create` — see [`getting-started.md`](getting-started.md#create--start)). Explicit image pins are required on create (flags or `config/stack-defaults.env`).
+2. Note live WP / PHP / MariaDB versions for the migrate pin proposal (backup detect + overrides below). You do **not** need to hand-edit `.env` pins before `--yes` when migrate can resolve them.
+3. Optional before migrate: set `MIGRATION_SOURCE_URL` in **`.env` only** if you already know the live URL. Migrate is detect-first (manifest / SQL / existing `.env`); menu prompts or `--source-url` only fill a gap.
 
-| Variable                 | Role                                                                 |
-|--------------------------|----------------------------------------------------------------------|
-| `MIGRATION_SOURCE_URL`   | Live URL as stored in the DB (schema + domain); also hub Live link   |
-| `WP_TABLE_PREFIX`        | Table prefix (migrate can detect and write this)                     |
-| `WP_MULTISITE`           | Set by migrate when `*_blogs` is in the dump; do not guess early     |
-| `WP_MULTISITE_SUBDOMAIN` | `0` path (`/en/`), `1` subdomain — local default is path             |
+| Variable                 | Role                                                               |
+| ------------------------ | ------------------------------------------------------------------ |
+| `MIGRATION_SOURCE_URL`   | Live URL as stored in the DB (schema + domain); also hub Live link |
+| `WP_TABLE_PREFIX`        | Table prefix (migrate detects and writes this on `--yes`)          |
+| `WORDPRESS_IMAGE`        | Compose WP/PHP pin (migrate proposes / writes on `--yes`)          |
+| `MARIADB_IMAGE`          | Compose MariaDB pin (migrate proposes / writes on `--yes`)         |
+| `WP_MULTISITE`           | Set by migrate when `*_blogs` is in the dump; do not guess early   |
+| `WP_MULTISITE_SUBDOMAIN` | `0` path (`/en/`), `1` subdomain — local default is path           |
 
 `DOMAIN_CURRENT_SITE` is always `localhost:<WP_PORT>` via Compose (no separate env var).
 
@@ -36,7 +38,7 @@ Unpack **one** backup flat into `${WEBSITES_ROOT}/<folder>/import/`:
 
 - `wp-content/` (themes, plugins, uploads — not a full live webroot with `wp-admin` / `wp-includes`)
 - exactly one `.sql` or `.sql.gz`
-- optional `manifest.json` (prefix + source URL)
+- optional `manifest.json` (prefix + source URL + WP version when present)
 
 No dated wrapper folder. Extra dumps or `wp-admin` abort `migrate`. A successful `--yes` empties `import/` and keeps the folder. Use `backups/` for dumps you want to keep.
 
@@ -48,13 +50,38 @@ cd "$TROCKENDOCK_ROOT"
 ./stacks/wordpress/bin/wp-stack migrate --project <folder> --yes    # full restore
 ```
 
-| Mode | Flag | Needs in `import/` |
-|------|------|--------------------|
-| Full | `--only all` (default) | `wp-content/` + one dump |
-| Files only | `--only content` | `wp-content/` |
-| DB + URL rewrite | `--only db` | one dump |
+| Mode             | Flag                   | Needs in `import/`       |
+| ---------------- | ---------------------- | ------------------------ |
+| Full             | `--only all` (default) | `wp-content/` + one dump |
+| Files only       | `--only content`       | `wp-content/`            |
+| DB + URL rewrite | `--only db`            | one dump                 |
 
-What `--yes` does: restore `wp-content`, wipe project DB, import SQL, rewrite URLs, recreate WordPress, write detected `WP_TABLE_PREFIX` / `MIGRATION_SOURCE_URL` into `.env`. Multisite dumps also set `WP_MULTISITE=1` and rewrite `{prefix}blogs` / `{prefix}site` hosts. Add `--chown-www` for `wp-content` → `33:33` (uses sudo).
+### Image pins (create vs migrate)
+
+| Step    | Who sets pins                                                                |
+| ------- | ---------------------------------------------------------------------------- |
+| Create  | Operator flags or local `DEFAULT_*` in `config/stack-defaults.env`           |
+| Migrate | Dry-run **proposes**; `--yes` **writes** `WORDPRESS_IMAGE` / `MARIADB_IMAGE` |
+
+Pin resolution on migrate (messages say **pin applied** vs **override used**):
+
+- **WordPress core** — from backup `manifest.json` when present; PHP minor from current project pin, `stack-defaults`, or `--php` / `--wordpress-image`
+- **MariaDB** — current project pin, then `DEFAULT_MARIADB_IMAGE`, then `--mariadb-image`
+- **Overrides** — `--wordpress-image`, `--mariadb-image`, `--php` win over detect/defaults when you must diverge
+
+Menu migrate: dry-run proposal first, then optional Hub/placeholder overrides (Enter keeps the proposal).
+
+### What `--yes` writes / does
+
+Restore `wp-content`, wipe project DB, import SQL, rewrite URLs, recreate WordPress, and write into `.env`:
+
+- detected `WP_TABLE_PREFIX`
+- resolved `MIGRATION_SOURCE_URL` (detect-first; `--source-url` only if still empty)
+- resolved `WORDPRESS_IMAGE` / `MARIADB_IMAGE`
+
+Multisite dumps also set `WP_MULTISITE=1` and rewrite `{prefix}blogs` / `{prefix}site` hosts. Add `--chown-www` for `wp-content` → `33:33` (uses sudo).
+
+Guided interactive image bumps after migrate stay in [`image-bump.md`](image-bump.md) (manual today; menu/CLI overhaul → issue #2).
 
 ## Building blocks (optional)
 
@@ -109,20 +136,23 @@ More: [`getting-started.md`](getting-started.md#ownership-wp-content).
 
 ## Troubleshooting (short)
 
-| Symptom | Likely cause | Fix |
-|---------|--------------|-----|
-| Installer / language screen | Wrong table prefix in container | Set `WP_TABLE_PREFIX`, `--force-recreate wordpress` |
-| WP-CLI “not installed” | Missing SQL or wrong prefix | Re-import; fix prefix + recreate |
-| `/en/wp-content/...` 404, no styles | Missing Multisite `.htaccess` rules | Keep template `.htaccess` mounted |
-| Blank page after unpack | `700`/`600` as UID 1000 | `chown 33:33` + readable modes |
-| Backend Core update ≠ image | `.env` tag stale | See [`image-bump.md`](image-bump.md) |
+| Symptom                             | Likely cause                            | Fix                                                                                |
+| ----------------------------------- | --------------------------------------- | ---------------------------------------------------------------------------------- |
+| Installer / language screen         | Wrong table prefix in container         | Set `WP_TABLE_PREFIX`, `--force-recreate wordpress`                                |
+| WP-CLI “not installed”              | Missing SQL or wrong prefix             | Re-import; fix prefix + recreate                                                   |
+| `/en/wp-content/...` 404, no styles | Missing Multisite `.htaccess` rules     | Keep template `.htaccess` mounted                                                  |
+| Blank page after unpack             | `700`/`600` as UID 1000                 | `chown 33:33` + readable modes                                                     |
+| Backend Core update ≠ image         | `.env` tag stale                        | See [`image-bump.md`](image-bump.md)                                               |
+| Migrate refuses unresolved pins     | No backup WP version / defaults / flags | Pass `--php` / `--wordpress-image` / `--mariadb-image` or set `stack-defaults.env` |
 
 ## Related
 
-| Topic | Path |
-|-------|------|
-| Create / ownership         | [`getting-started.md`](getting-started.md) |
-| Image bump                 | [`image-bump.md`](image-bump.md)           |
-| Fresh → Multisite          | [`multisite-convert.md`](multisite-convert.md) |
-| Daily Compose / hub        | [`../getting-started.md`](../getting-started.md#daily-commands) |
-| Ports                      | [`../port-convention.md`](../port-convention.md) |
+| Topic               | Path                                                                                                                 |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Create / ownership  | [`getting-started.md`](getting-started.md)                                                                           |
+| Image bump (manual) | [`image-bump.md`](image-bump.md) (#2 guided bump planned)                                                            |
+| Fresh → Multisite   | [`multisite-convert.md`](multisite-convert.md)                                                                       |
+| Daily Compose / hub | [`../getting-started.md`](../getting-started.md#daily-commands)                                                      |
+| Stack defaults      | [`../../config/README.md`](../../config/README.md) (#2 may refresh)                                                  |
+| Hub Live link       | Needs `MIGRATION_SOURCE_URL` — [#3](../issue-worklogs/unassigned/show-link-hub-configured-versions.md) displays only |
+| Ports               | [`../port-convention.md`](../port-convention.md)                                                                     |

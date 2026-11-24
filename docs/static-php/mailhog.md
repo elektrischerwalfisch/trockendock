@@ -13,14 +13,14 @@ cd "$TROCKENDOCK_ROOT"
 
 → Static PHP → Create project (choose `static-php-mailhog`) · Platform → Start / Stop.
 
-Create/start: [`getting-started.md`](getting-started.md).
+Create still requires an explicit PHP pin (menu placeholder/Hub or `--php` / `DEFAULT_PHP_IMAGE`). Create/start: [`getting-started.md`](getting-started.md).
 
 ## Wire SMTP from PHP in Docker
 
 Point your mailer (PHPMailer or similar) at:
 
 | Setting    | Value     |
-|------------|-----------|
+| ---------- | --------- |
 | Host       | `mailhog` |
 | Port       | `1025`    |
 | Encryption | none      |
@@ -32,8 +32,8 @@ Host-side tools: `localhost` + `MAILHOG_SMTP_PORT` — see [`../mailhog.md`](../
 
 ## Related
 
-| Topic            | Path                                       |
-|------------------|--------------------------------------------|
-| Shared Mailhog   | [`../mailhog.md`](../mailhog.md)           |
-| Getting started  | [`getting-started.md`](getting-started.md) |
-| WordPress wire-up| [`../wordpress/mailhog-smtp.md`](../wordpress/mailhog-smtp.md) |
+| Topic             | Path                                                           |
+| ----------------- | -------------------------------------------------------------- |
+| Shared Mailhog    | [`../mailhog.md`](../mailhog.md)                               |
+| Getting started   | [`getting-started.md`](getting-started.md)                     |
+| WordPress wire-up | [`../wordpress/mailhog-smtp.md`](../wordpress/mailhog-smtp.md) |

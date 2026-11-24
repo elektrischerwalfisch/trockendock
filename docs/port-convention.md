@@ -84,4 +84,4 @@ The generator reads `STACK` from each `.env`:
 | `static-php` | static/php — Web only (+ Live if `MIGRATION_SOURCE_URL` set) |
 | `static-php-mailhog` | static/php/mailhog — Web, Mailhog (+ Live if `MIGRATION_SOURCE_URL` set) |
 
-All stacks: optional `MIGRATION_SOURCE_URL` in `.env` adds a live-site link to the index (WordPress keeps it after `migrate`; static PHP: set manually).
+All stacks: optional `MIGRATION_SOURCE_URL` in `.env` adds a **Live** link in the index. Create (WP + Static) can set it via menu/`--source-url`; WordPress migrate writes it detect-first. The hub only **displays** the link when the variable is set (worklog [#3](issue-worklogs/unassigned/show-link-hub-configured-versions.md)).

@@ -16,12 +16,20 @@ cd "$TROCKENDOCK_ROOT"
 
 ## Create + start
 
+Image pins are **required**. Pass flags, or set soft defaults in `config/stack-defaults.env` (optional Enter / omitted flags). Floating tags like `wordpress:php8.3-apache` are rejected. Optional `--source-url` writes `MIGRATION_SOURCE_URL` (hub Live link).
+
 ```bash
 cd "$TROCKENDOCK_ROOT"
-./stacks/wordpress/bin/wp-stack project create <folder> [--theme <theme-slug>]
+./stacks/wordpress/bin/wp-stack project create <folder> \
+  --wordpress-image wordpress:<WP>-php<PHP>-apache \
+  --mariadb-image mariadb:<x.y> \
+  [--theme <theme-slug>] \
+  [--source-url https://www.example.de]
 ```
 
-This copies the template, writes `.env` (next free `80Nx` port block, DB passwords), and regenerates the link hub. Then:
+Menu create prompts WP core / PHP / MariaDB with format placeholders and Docker Hub tag links; Enter uses local `DEFAULT_*` when set. Full menu pin UX (WP + Static): [`../getting-started.md`](../getting-started.md#menu-image-pin-ux).
+
+This copies the template, writes `.env` (pins, next free `80Nx` port block, DB passwords), and regenerates the link hub. Then:
 
 ```bash
 cd "${WEBSITES_ROOT}/<folder>"
@@ -30,13 +38,13 @@ docker compose pull && docker compose up -d
 
 Open `http://localhost:<WP_PORT>/` (port from `.env` or the link hub).
 
-More create/ops rules: [`local-workflow.md`](local-workflow.md).
+More create/ops rules: [`local-workflow.md`](local-workflow.md). Soft defaults: [`../../config/README.md`](../../config/README.md).
 
 ## Migrate (short)
 
-1. Create the project (above); pin live image tags in `.env` if needed (`WORDPRESS_IMAGE`, `MARIADB_IMAGE`).
+1. Create the project (above).
 2. Unpack **one** backup directly into `${WEBSITES_ROOT}/<folder>/import/` (`wp-content/`, one `.sql` or `.sql.gz`, optional `manifest.json`). A successful `--yes` empties that folder and leaves it in place. `backups/` stays for dumps you keep.
-3. Preview, then restore:
+3. Preview, then restore — dry-run shows proposed image pins; `--yes` writes pins, prefix, and source URL:
 
 ```bash
 cd "$TROCKENDOCK_ROOT"
@@ -44,7 +52,7 @@ cd "$TROCKENDOCK_ROOT"
 ./stacks/wordpress/bin/wp-stack migrate --project <folder> --yes    # full restore
 ```
 
-Modes (`--only content`, `--only db`) and flags: [`migration.md`](migration.md).
+Modes (`--only content`, `--only db`), pin resolution, and flags: [`migration.md`](migration.md).
 
 ## Ownership (`wp-content`)
 

@@ -46,6 +46,8 @@ Missing `stack-defaults.env` is fine — create then requires explicit pins. The
 
 Prefixed `DEFAULT_*` keys avoid exporting `WORDPRESS_IMAGE` / `PHP_IMAGE` into the shell (Compose would override project `.env`).
 
+Aging local defaults are an operator concern. A later guided image bump (worklog [#2](../docs/issue-worklogs/unassigned/guided-image-version-bump.md)) may offer refreshing `stack-defaults.env` after a deliberate pin change — today, edit this file by hand. Create/migrate write project `.env` pins and optional `MIGRATION_SOURCE_URL`; the link hub only **displays** Live when that URL is set (worklog [#3](../docs/issue-worklogs/unassigned/show-link-hub-configured-versions.md)).
+
 ## Usage in scripts
 
 ```bash
@@ -69,14 +71,18 @@ In Trockendock docs and copied templates, use **variable names** — not literal
 source config/load-config.sh
 ```
 
-**New projects** — prefer stack CLIs (assign ports, write `.env`, regenerate link hub):
+**New projects** — prefer stack CLIs (assign ports, write `.env`, regenerate link hub). Image pins are required via flags or local `DEFAULT_*`:
 
 ```bash
 source config/load-config.sh
-./stacks/wordpress/bin/wp-stack project create <folder>
-./stacks/static-php/bin/static-stack project create <folder> --variant static-php
+./stacks/wordpress/bin/wp-stack project create <folder> \
+  --wordpress-image wordpress:<WP>-php<PHP>-apache \
+  --mariadb-image mariadb:<x.y>
+./stacks/static-php/bin/static-stack project create <folder> \
+  --variant static-php \
+  --php <x.y>
 ```
 
-See [`../docs/getting-started.md`](../docs/getting-started.md). Manual `cp -r templates/...` remains possible; see stack READMEs.
+See [`../docs/getting-started.md`](../docs/getting-started.md) and WordPress [`../docs/wordpress/getting-started.md`](../docs/wordpress/getting-started.md). Manual `cp -r templates/...` remains possible; see stack READMEs.
 
 Former private path `TROCKENDOCK_LOCAL` / archive manifests: dropped from the active workflow (triage D4). Do not revive without a new ADR.

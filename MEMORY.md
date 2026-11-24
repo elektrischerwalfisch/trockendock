@@ -7,10 +7,13 @@
 
 ## Current Status
 
-**Date**: 2026-11-23
+**Date**: 2026-11-24
 **Phase**: Phase 2 · Hardening & polish
 
-**Working on**: Stack image pin lifecycle — #1 active (menu migrate pin UX done; section 3 docs next)
+**Working on**: Stack image pin lifecycle — #1 active (section 3 docs done; smoke / close remain)
+
+**Session note**: Create hub failure was stale `TROCKENDOCK_ROOT` in `paths.env`. Temporary loader/common/menu resilience reverted — fix is correcting `paths.env` only.
+
 
 **Next steps**:
 - [ ] 1) Pin on create/migrate (`docs/issue-worklogs/unassigned/pin-stack-image-versions-on-create-migrate.md`)
@@ -46,6 +49,9 @@
 - 2026-11-24 #1: migrate dry-run proposes image pins; `--yes` writes them (backup WP + PHP/MDB from current/defaults/flags)
 - 2026-11-24 #1: migrate “pin applied” vs “override used”; `--source-url` detect-first + menu prompt
 - 2026-11-24 #1: menu migrate — dry-run proposal then Hub/placeholder pin overrides (Enter keeps detect)
+- 2026-11-24 #1 docs: `stack-defaults.env` parallel to `paths.env` (install + config + getting-started); `migration.md` + WP create notes for pin/live-URL policy (`image-bump.md` left for #2)
+- 2026-11-24 #1 docs: Static PHP create/`PHP_IMAGE` + defaults UX; menu pin UX section (WP + Static) in `docs/getting-started.md`
+- 2026-11-24 #1 docs: cross-links — hub Live needs `MIGRATION_SOURCE_URL` (#3); guided bump (#2) may refresh `stack-defaults.env`
 
 ---
 

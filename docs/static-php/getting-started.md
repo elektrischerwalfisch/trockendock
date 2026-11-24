@@ -3,7 +3,8 @@
 Flat PHP sites (no database) — two fixed variants. Pick at create time; no switching later.
 
 Platform entry (menu, paths, hub): [`../getting-started.md`](../getting-started.md).  
-CLI reference: [`../../stacks/static-php/README.md`](../../stacks/static-php/README.md).
+CLI reference: [`../../stacks/static-php/README.md`](../../stacks/static-php/README.md).  
+Soft defaults: [`../../config/README.md`](../../config/README.md).
 
 **Prefer the interactive menu** for create and start/stop/hub:
 
@@ -14,25 +15,35 @@ cd "$TROCKENDOCK_ROOT"
 
 → Static PHP → Create project · Platform → Start / Stop / Refresh link hub. CLI below is the equivalent.
 
+Menu create prompts for a PHP pin (placeholder + Docker Hub tags link); Enter uses `DEFAULT_PHP_IMAGE` from local `config/stack-defaults.env` when set. See [`../getting-started.md`](../getting-started.md#menu-image-pin-ux).
+
 ## Variants
 
 | Variant            | `--variant`          | Services               |
-|--------------------|----------------------|------------------------|
+| ------------------ | -------------------- | ---------------------- |
 | static/php         | `static-php`         | Apache + PHP           |
 | static/php/mailhog | `static-php-mailhog` | Apache + PHP + Mailhog |
 
 ## Create + start
 
+`PHP_IMAGE` is **required**. Pass `--php` (bare `x.y` or full `php:x.y-apache`), or set `DEFAULT_PHP_IMAGE` in `config/stack-defaults.env`. Optional `--source-url` writes `MIGRATION_SOURCE_URL` (hub Live link).
+
 ```bash
 cd "$TROCKENDOCK_ROOT"
-./stacks/static-php/bin/static-stack project create <folder> --variant static-php
+./stacks/static-php/bin/static-stack project create <folder> \
+  --variant static-php \
+  --php <x.y> \
+  [--source-url https://www.example.de]
 # or
-./stacks/static-php/bin/static-stack project create <folder> --variant static-php-mailhog
+./stacks/static-php/bin/static-stack project create <folder> \
+  --variant static-php-mailhog \
+  --php php:<x.y>-apache \
+  [--source-url https://www.example.de]
 ```
 
-Optional: `--slug <name>`, `--dry-run`, `--no-index`.
+Also: `--slug <name>`, `--dry-run`, `--no-index`.
 
-This copies the template, writes `.env` (next free `80Nx` port block), and regenerates the link hub.
+This copies the template, writes `.env` (`PHP_IMAGE`, next free `80Nx` port block, optional live URL), and regenerates the link hub.
 
 Add your site files (project root = document root):
 
@@ -47,7 +58,7 @@ docker compose pull && docker compose up -d
 
 Open `http://localhost:<WEB_PORT>/` (port from `.env` or the link hub).
 
-Optional: set `MIGRATION_SOURCE_URL` in `.env` (e.g. `https://www.example.de`) for a **Live** link in the hub. After changing hub-relevant `.env` values, regenerate:
+After changing hub-relevant `.env` values by hand, regenerate:
 
 ```bash
 cd "$TROCKENDOCK_ROOT"
@@ -65,8 +76,11 @@ One `80Nx` block per project (shared with WordPress): static/php uses `…1` onl
 
 ## Related
 
-| Topic       | Path                           |
-|-------------|-------------------------------|
-| Area index  | [`README.md`](README.md)       |
-| Mailhog     | [`mailhog.md`](mailhog.md)     |
-| Docs index  | [`../README.md`](../README.md) |
+| Topic          | Path                                                                                                                 |
+| -------------- | -------------------------------------------------------------------------------------------------------------------- |
+| Area index     | [`README.md`](README.md)                                                                                             |
+| Mailhog        | [`mailhog.md`](mailhog.md)                                                                                           |
+| Menu pin UX    | [`../getting-started.md`](../getting-started.md#menu-image-pin-ux)                                                   |
+| Stack defaults | [`../../config/README.md`](../../config/README.md) (#2 may refresh)                                                  |
+| Hub Live link  | Needs `MIGRATION_SOURCE_URL` — [#3](../issue-worklogs/unassigned/show-link-hub-configured-versions.md) displays only |
+| Docs index     | [`../README.md`](../README.md)                                                                                       |
