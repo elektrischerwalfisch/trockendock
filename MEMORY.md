@@ -10,7 +10,7 @@
 **Date**: 2026-11-23
 **Phase**: Phase 2 · Hardening & polish
 
-**Working on**: Stack image pin lifecycle — #1 active (migrate messaging + source-url done; menu pin overrides + docs next)
+**Working on**: Stack image pin lifecycle — #1 active (menu migrate pin UX done; section 3 docs next)
 
 **Next steps**:
 - [ ] 1) Pin on create/migrate (`docs/issue-worklogs/unassigned/pin-stack-image-versions-on-create-migrate.md`)
@@ -45,6 +45,7 @@
 - 2026-11-23 #1: optional `--source-url` / menu live URL on WP+static create; install docs for `stack-defaults.env`
 - 2026-11-24 #1: migrate dry-run proposes image pins; `--yes` writes them (backup WP + PHP/MDB from current/defaults/flags)
 - 2026-11-24 #1: migrate “pin applied” vs “override used”; `--source-url` detect-first + menu prompt
+- 2026-11-24 #1: menu migrate — dry-run proposal then Hub/placeholder pin overrides (Enter keeps detect)
 
 ---
 

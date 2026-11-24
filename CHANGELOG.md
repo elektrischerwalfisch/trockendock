@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- feat: add migrate menu pin overrides with dry-run proposals
 - feat: clarify migrate pin messaging and add detect-first source URL
 - feat: propose and write image pins on wp-stack migrate
 - feat: add static menu PHP pins and optional create source URL

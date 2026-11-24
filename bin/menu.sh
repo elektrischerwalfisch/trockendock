@@ -50,6 +50,19 @@ menu_prompt_pin() {
   done
 }
 
+# Like menu_prompt_pin, but empty Enter with no default means "keep migrate proposal / no flag".
+menu_prompt_pin_optional() {
+  local label="$1" placeholder="$2" default="${3:-}"
+  local value=""
+  if [[ -n "$default" ]]; then
+    read -r -p "${label} [${placeholder}; Enter=${default}]: " value
+    printf '%s' "${value:-$default}"
+  else
+    read -r -p "${label} [${placeholder}; Enter=keep auto]: " value
+    printf '%s' "$value"
+  fi
+}
+
 menu_confirm_yes() {
   local prompt="$1"
   local answer=""
@@ -200,7 +213,10 @@ EOF
 }
 
 menu_wordpress_migrate() {
-  local folder source_url="" args=(migrate)
+  local folder source_url="" only_mode="all" dry_out="" args=(migrate)
+  local proposed_wp="" proposed_mdb="" parts def_wp="" def_php="" def_mdb=""
+  local wp_core php_minor mariadb_minor final_wp final_mdb
+
   cat <<'EOF'
 
 Migrate
@@ -213,8 +229,8 @@ Create an import/ folder in the project and unpack exactly one backup directly i
 
 No extra folder around those entries. A successful run empties import/.
 
-Image pins: dry-run shows "pin applied" (detect/defaults) vs "override used" (flags).
-Source URL: auto-detect first (manifest / SQL / .env); prompt below only if needed.
+Flow: dry-run plan first (detect) → optional pin overrides (Hub + placeholders) → optional --yes.
+Source URL: detect-first; prompt only fills a gap.
 
 EOF
   folder="$(menu_prompt "Project folder under \$WEBSITES_ROOT")"
@@ -223,14 +239,109 @@ EOF
   if ! menu_confirm_yes "Backup is laid out in import/ as shown above"; then
     return 0
   fi
+
+  cat <<'EOF'
+
+Restore mode:
+  1) all (wp-content + database + URLs)
+  2) content only
+  3) db only
+
+EOF
+  read -r -p "Choice [1]: " only_mode
+  case "${only_mode:-1}" in
+    1|"") only_mode="all" ;;
+    2) only_mode="content" ;;
+    3) only_mode="db" ;;
+    *)
+      echo "Unknown mode choice."
+      menu_pause
+      return 0
+      ;;
+  esac
+  args+=(--only "$only_mode")
+
   source_url="$(menu_prompt "Live site URL if not auto-detected (empty = detect only)")"
   if [[ -n "$source_url" ]]; then
     args+=(--source-url "$source_url")
   fi
-  if menu_confirm_yes "Execute migration (--yes; otherwise dry run)"; then
-    args+=(--yes)
+
+  echo
+  echo "→ dry-run plan (detect)"
+  echo
+  if ! dry_out="$("$WP_STACK" "${args[@]}" 2>&1)"; then
+    echo "$dry_out"
+    echo
+    echo "trockendock-menu: dry-run failed."
+    menu_pause
+    return 0
   fi
-  menu_run "$WP_STACK" "${args[@]}"
+  echo "$dry_out"
+  echo
+
+  proposed_wp="$(printf '%s\n' "$dry_out" | sed -n 's/^[[:space:]]*WORDPRESS_IMAGE: \([^ ]*\).*/\1/p' | head -1)"
+  proposed_mdb="$(printf '%s\n' "$dry_out" | sed -n 's/^[[:space:]]*MARIADB_IMAGE: \([^ ]*\).*/\1/p' | head -1)"
+  [[ "$proposed_wp" == "(none)" ]] && proposed_wp=""
+  [[ "$proposed_mdb" == "(none)" ]] && proposed_mdb=""
+
+  if [[ -n "$proposed_wp" ]] && parts="$(trockendock_parse_wordpress_image_parts "$proposed_wp")"; then
+    read -r def_wp def_php <<<"$parts"
+  fi
+  if [[ -n "$proposed_mdb" ]]; then
+    def_mdb="$(trockendock_parse_mariadb_image_minor "$proposed_mdb" || true)"
+  fi
+
+  cat <<'EOF'
+Image pin overrides
+───────────────────
+  WordPress tags: https://hub.docker.com/_/wordpress/tags
+  MariaDB tags:   https://hub.docker.com/_/mariadb/tags
+  Format:         wordpress:<WP>-php<PHP>-apache
+
+  Enter keeps the dry-run proposal when shown. Empty without a proposal = keep auto.
+EOF
+  if [[ -n "$proposed_wp" || -n "$proposed_mdb" ]]; then
+    echo
+    echo "  dry-run proposal: WORDPRESS_IMAGE=${proposed_wp:-'(none)'} MARIADB_IMAGE=${proposed_mdb:-'(none)'}"
+  fi
+  echo
+
+  wp_core="$(menu_prompt_pin_optional "WordPress core" "x.y.z" "$def_wp")"
+  php_minor="$(menu_prompt_pin_optional "PHP minor" "x.y" "$def_php")"
+  mariadb_minor="$(menu_prompt_pin_optional "MariaDB" "x.y" "$def_mdb")"
+
+  if [[ -n "$wp_core" && -n "$php_minor" ]]; then
+    final_wp="$(trockendock_format_wordpress_image "$wp_core" "$php_minor")"
+    if ! trockendock_validate_wordpress_image "$final_wp"; then
+      menu_pause
+      return 0
+    fi
+    if [[ "$final_wp" != "$proposed_wp" ]]; then
+      args+=(--wordpress-image "$final_wp")
+    fi
+  fi
+  if [[ -n "$mariadb_minor" ]]; then
+    final_mdb="$(trockendock_format_mariadb_image "$mariadb_minor")"
+    if ! trockendock_validate_mariadb_image "$final_mdb"; then
+      menu_pause
+      return 0
+    fi
+    if [[ "$final_mdb" != "$proposed_mdb" ]]; then
+      args+=(--mariadb-image "$final_mdb")
+    fi
+  fi
+
+  if menu_confirm_yes "Execute migration (--yes)"; then
+    args+=(--yes)
+    menu_run "$WP_STACK" "${args[@]}"
+  else
+    echo
+    echo "Stopped after dry-run (no --yes)."
+    if [[ " ${args[*]} " == *" --wordpress-image "* || " ${args[*]} " == *" --mariadb-image "* ]]; then
+      echo "Pin overrides were chosen but not applied — re-run and confirm --yes to write them."
+    fi
+    menu_pause
+  fi
 }
 
 menu_wordpress_db_import() {
