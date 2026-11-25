@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- feat: restyle the link hub with neo-brutal chrome and clearer meta
 - feat: add image bump menu entries and auto-refresh link hub on apply
 - feat: add guided image bump CLI for WordPress and Static PHP stacks
 - test: isolate pin smokes from stack-defaults and mark pin package done

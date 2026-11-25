@@ -9,7 +9,6 @@ source "${SCRIPT_DIR}/../config/load-config.sh"
 
 OUTPUT="${LOCAL_DEV_INDEX_FILE}"
 GENERATED_AT="$(date '+%Y-%m-%d %H:%M')"
-PORT_CONVENTION_DOC="${TROCKENDOCK_ROOT}/docs/port-convention.md"
 
 mkdir -p "$(dirname "$OUTPUT")"
 
@@ -69,7 +68,6 @@ index_classify_project() {
 }
 
 projects=()
-used_blocks=()
 
 for project_dir in "${WEBSITES_ROOT}"/*/; do
   [ -d "$project_dir" ] || continue
@@ -84,31 +82,12 @@ for project_dir in "${WEBSITES_ROOT}"/*/; do
   slug="$(read_env_var "$env_file" PROJECT_SLUG)"
   live_url="$(read_env_var "$env_file" MIGRATION_SOURCE_URL)"
 
-  if [[ "$PROJECT_WEB_PORT" =~ ^[0-9]+$ ]]; then
-    used_blocks+=($((PROJECT_WEB_PORT / 10)))
-  fi
-
   projects+=("${PROJECT_WEB_PORT}|${folder}|${slug}|${PROJECT_STACK_LABEL}|${PROJECT_WEB_PORT}|${PROJECT_PMA_PORT}|${PROJECT_MAILHOG_PORT}|${live_url}")
 done
 
 # Sort alphabetically by project folder (field 2).
 IFS=$'\n' sorted=($(printf '%s\n' "${projects[@]:-}" | sort -t'|' -k2,2))
 unset IFS
-
-next_block_label=""
-for block in $(seq 801 899); do
-  in_use=0
-  for used in "${used_blocks[@]:-}"; do
-    if [[ "$used" -eq "$block" ]]; then
-      in_use=1
-      break
-    fi
-  done
-  if [[ "$in_use" -eq 0 ]]; then
-    next_block_label="${block}x (WP: ${block}1–${block}4 · static/php: ${block}1 · static/php/mailhog: ${block}1, ${block}3–${block}4)"
-    break
-  fi
-done
 
 {
   cat <<'HTML_HEAD'
@@ -120,80 +99,87 @@ done
   <title>Trockendock</title>
   <style>
     :root {
-      --bg: #f4f6f8;
-      --card: #fff;
-      --text: #1a1a1a;
-      --muted: #5c6570;
-      --accent: #0060df;
-      --border: #d7dde5;
+      --canvas: #f5f5f4;
+      --surface: #fff;
+      --contrast: #292524;
+      --muted: #78716c;
+      --accent: #facc15;
+      --shadow: 4px 4px 0 0 var(--contrast);
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      padding: 2rem 1.5rem 3rem;
+      min-height: 100vh;
+      padding: 2.5rem 1.25rem 3rem;
       font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      background: var(--canvas);
+      color: var(--contrast);
       line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
     }
     main { max-width: 52rem; margin: 0 auto; }
-    h1 { margin: 0 0 0.25rem; font-size: 1.75rem; }
-    .meta { color: var(--muted); font-size: 0.9rem; margin-bottom: 1rem; }
-    .hint {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 0.75rem 1rem;
-      margin-bottom: 1.5rem;
-      font-size: 0.9rem;
+    h1 {
+      margin: 0 0 0.75rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 4px solid var(--contrast);
+      font-size: 1.75rem;
+      font-weight: 900;
+    }
+    .meta {
+      margin: 0 0 1.5rem;
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 600;
     }
     .grid {
       display: grid;
-      gap: 1rem;
+      gap: 1.25rem;
     }
     @media (min-width: 40rem) {
       .grid { grid-template-columns: repeat(2, 1fr); }
     }
-    article {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 8px;
+    article,
+    .empty {
+      margin: 0;
       padding: 1rem 1.25rem;
+      background: var(--surface);
+      border: 2px solid var(--contrast);
+      border-radius: 0;
+      box-shadow: var(--shadow);
     }
     article h2 {
       margin: 0 0 0.75rem;
-      font-size: 1.1rem;
+      font-size: 1rem;
+      font-weight: 900;
     }
     article h2 span {
       display: block;
-      font-size: 0.85rem;
-      font-weight: normal;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
       color: var(--muted);
     }
-    ul {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-    li + li { margin-top: 0.35rem; }
+    ul { list-style: none; margin: 0; padding: 0; }
+    li + li { margin-top: 0.5rem; }
     a {
-      color: var(--accent);
-      text-decoration: none;
+      color: var(--contrast);
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 0.25em;
     }
-    a:hover { text-decoration: underline; }
-    .empty {
-      background: var(--card);
-      border: 1px dashed var(--border);
-      border-radius: 8px;
-      padding: 1.25rem;
-      color: var(--muted);
-    }
+    a:hover { background: var(--accent); color: var(--contrast); text-decoration: none; }
+    .empty { color: var(--muted); font-weight: 600; }
     footer {
       margin-top: 2rem;
-      font-size: 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 2px solid var(--contrast);
+      font-size: 0.75rem;
+      font-weight: 600;
       color: var(--muted);
     }
-    code { font-size: 0.85em; }
+    footer a { font-weight: 800; }
+    code { font-size: 0.75em; font-weight: 700; }
   </style>
 </head>
 <body>
@@ -201,13 +187,9 @@ done
     <h1>Trockendock</h1>
 HTML_HEAD
 
-  printf '    <p class="meta">Generated: %s · Source: <code>$WEBSITES_ROOT/*/.env</code></p>\n' \
-    "$(html_escape "$GENERATED_AT")"
-
-  if [[ -n "$next_block_label" ]]; then
-    printf '    <p class="hint">Suggested next port block: <strong>%s</strong></p>\n' \
-      "$(html_escape "$next_block_label")"
-  fi
+  printf '    <p class="meta">Generated: %s<br>Source: <code>%s/*/.env</code></p>\n' \
+    "$(html_escape "$GENERATED_AT")" \
+    "$(html_escape "$WEBSITES_ROOT")"
 
   if [ "${#sorted[@]}" -eq 0 ] || [ -z "${sorted[0]:-}" ]; then
     cat <<'HTML_EMPTY'
@@ -250,11 +232,11 @@ HTML_CARD_END
     echo '    </div>'
   fi
 
-  cat <<'HTML_FOOT'
+  cat <<HTML_FOOT
     <footer>
-      Regenerate: <code>$GENERATE_INDEX_SCRIPT</code>
-      · Bookmark: <code>$LOCAL_DEV_INDEX_FILE</code>
-      · Convention: <code>$TROCKENDOCK_ROOT/docs/port-convention.md</code>
+      Trockendock <strong>v$(html_escape "${TROCKENDOCK_VERSION:-dev}")</strong>
+      · by $(html_escape "elektrischerwalfisch")
+      · <a href="https://github.com/elektrischerwalfisch/trockendock" target="_blank" rel="noopener">GitHub</a>
     </footer>
   </main>
 </body>
@@ -263,4 +245,4 @@ HTML_FOOT
 
 } >"$OUTPUT"
 
-echo "Wrote ${OUTPUT} ($(wc -l <"$OUTPUT") lines, ${#sorted[@]} project(s), next block: ${next_block_label:-n/a})"
+echo "Wrote ${OUTPUT} ($(wc -l <"$OUTPUT") lines, ${#sorted[@]} project(s))"
