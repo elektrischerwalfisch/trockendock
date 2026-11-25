@@ -78,6 +78,8 @@ source config/load-config.sh
 xdg-open "$LOCAL_DEV_INDEX_FILE"   # trockendock.html at repo root (gitignored)
 ```
 
+Hub cards show **configured** image pins + Multisite from `.env`, and a **running/stopped** Compose snapshot at generate time — details: [`port-convention.md`](port-convention.md#link-hub-card-contents). Pins are written by create/migrate/bump; the hub only displays them.
+
 Use **`http://localhost:<port>`**, not `https://` — publish ports are HTTP-only (HTTPS-First in the browser can look like an endless load).
 
 Port blocks: [`port-convention.md`](port-convention.md).
@@ -87,6 +89,8 @@ Port blocks: [`port-convention.md`](port-convention.md).
 | Topic           | Path                                           |
 | --------------- | ---------------------------------------------- |
 | Docs index      | [`README.md`](README.md)                       |
+| Link hub cards  | [`port-convention.md`](port-convention.md#link-hub-card-contents) |
+| Image bump      | [`wordpress/image-bump.md`](wordpress/image-bump.md) |
 | WordPress area  | [`wordpress/README.md`](wordpress/README.md)   |
 | Static PHP area | [`static-php/README.md`](static-php/README.md) |
 | AI rules        | [`../AGENTS.md`](../AGENTS.md)                 |

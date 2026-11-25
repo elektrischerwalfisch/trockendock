@@ -40,4 +40,23 @@ trockendock_set_env_var "${TMP_DIR}" WORDPRESS_IMAGE "wordpress:6.4.3-php8.3-apa
 grep -qx 'PHP_IMAGE=php:8.3-apache' "${TMP_DIR}/.env"
 grep -qx 'WORDPRESS_IMAGE=wordpress:6.4.3-php8.3-apache' "${TMP_DIR}/.env"
 
+# Hub display labels (configured tags only).
+[[ "$(trockendock_hub_label_wp "wordpress:6.4.3-php8.3-apache")" == "WP 6.4.3" ]]
+[[ "$(trockendock_hub_label_php_from_wordpress_image "wordpress:6.4.3-php8.3-apache")" == "PHP 8.3" ]]
+[[ "$(trockendock_hub_label_wp "wordpress:php8.3-apache")" == "WP latest" ]]
+[[ "$(trockendock_hub_label_php_from_wordpress_image "wordpress:php8.3-apache")" == "PHP 8.3" ]]
+[[ "$(trockendock_hub_label_php "php:8.2-apache")" == "PHP 8.2" ]]
+[[ "$(trockendock_hub_label_mariadb "mariadb:10.11")" == "MariaDB 10.11" ]]
+[[ "$(trockendock_hub_label_mariadb "mariadb:10")" == "MariaDB 10" ]]
+[[ "$(trockendock_hub_join_labels "wordpress" "WP 6.4.3" "PHP 8.3" "MariaDB 10.11")" == "wordpress · WP 6.4.3 · PHP 8.3 · MariaDB 10.11" ]]
+[[ "$(trockendock_hub_label_multisite "1")" == "Multisite" ]]
+if trockendock_hub_label_multisite "0" 2>/dev/null; then
+  echo "expected WP_MULTISITE=0 to omit Multisite label" >&2
+  exit 1
+fi
+if trockendock_hub_label_multisite "" 2>/dev/null; then
+  echo "expected empty WP_MULTISITE to omit Multisite label" >&2
+  exit 1
+fi
+
 echo "smoke-stack-image-pins-lib: ok"

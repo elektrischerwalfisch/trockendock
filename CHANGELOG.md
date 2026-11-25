@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- feat: show configured stack versions and run state in the link hub
 - feat: restyle the link hub with neo-brutal chrome and clearer meta
 - feat: add image bump menu entries and auto-refresh link hub on apply
 - feat: add guided image bump CLI for WordPress and Static PHP stacks

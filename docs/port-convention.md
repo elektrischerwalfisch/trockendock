@@ -63,25 +63,50 @@ URLs: `http://localhost:<WEB_PORT>` · `http://localhost:<MAILHOG_UI_PORT>`
 
 ## Next free block
 
-Pick the smallest `80Nx` block not used by any project `.env` (`WP_PORT` or `WEB_PORT` in that tens range). The link hub (`$LOCAL_DEV_INDEX_FILE`) suggests the next block after you run `$GENERATE_INDEX_SCRIPT`.
+Pick the smallest `80Nx` block not used by any project `.env` (`WP_PORT` or `WEB_PORT` in that tens range).
 
 `wp-stack` and `static-stack project create` assign the next free block automatically.
 
 ## When adding a project
 
-1. Pick the next free block (link hub, CLI, or table above).
+1. Pick the next free block (create CLI/menu, or table above).
 2. Set ports in the project **`.env` only** (not `.env.example`).
 3. Run `$GENERATE_INDEX_SCRIPT` and bookmark `$LOCAL_DEV_INDEX_FILE`.
 4. Run `docker compose up -d` only after ports are unique across all running stacks.
+
+## Link hub card contents
+
+The generator builds cards from each project `.env` (+ a Compose snapshot). It **reads** pins; it does not write them.
+
+| Card part        | Source                                                                                         | Notes                                                                                          |
+| ---------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Title            | Project folder name                                                                            | —                                                                                              |
+| Run-state badge  | `docker compose ps` at generate time                                                           | `running` / `stopped` for the web service (`wordpress` or `web`); snapshot, not live polling   |
+| System meta      | `STACK` / WP ports                                                                             | Display label is only `wordpress` or `static/php` (Mailhog variant still shows a Mailhog link) |
+| Multisite        | `WP_MULTISITE=1`                                                                               | Configured flag only; omitted when unset / `0`                                                 |
+| Version chips    | `WORDPRESS_IMAGE` / `PHP_IMAGE` / `MARIADB_IMAGE`                                              | Configured tags only — no `docker exec` / runtime Ist                                          |
+| `WP latest` chip | WordPress image tag **without** a core pin (e.g. `wordpress:php8.3-apache`)                    | Never invent a core version                                                                    |
+| Links            | Ports + optional `MIGRATION_SOURCE_URL`                                                        | Live link only when that URL is set                                                            |
+
+**Who writes pins (hub only displays):**
+
+| Moment              | Guide                                                                              |
+| ------------------- | ---------------------------------------------------------------------------------- |
+| Create (WP/Static)  | [`wordpress/getting-started.md`](wordpress/getting-started.md) · [`static-php/getting-started.md`](static-php/getting-started.md) |
+| Migrate (WP)        | [`wordpress/migration.md`](wordpress/migration.md)                                 |
+| Guided image bump   | [`wordpress/image-bump.md`](wordpress/image-bump.md)                               |
+| Soft defaults       | [`../config/README.md`](../config/README.md)                                       |
+
+After create, migrate `--yes`, or image bump `--yes`, regenerate the hub (menu Platform → Refresh link hub, or `$GENERATE_INDEX_SCRIPT`). Bump already refreshes the hub by default.
 
 ## Stack detection in the link hub
 
 The generator reads `STACK` from each `.env`:
 
-| `STACK` value | Links shown |
-|---------------|-------------|
-| *(absent, with `WP_PORT`)* | wordpress — Web, phpMyAdmin, Mailhog |
-| `static-php` | static/php — Web only (+ Live if `MIGRATION_SOURCE_URL` set) |
-| `static-php-mailhog` | static/php/mailhog — Web, Mailhog (+ Live if `MIGRATION_SOURCE_URL` set) |
+| `STACK` value                    | System meta  | Links shown                                              |
+| -------------------------------- | ------------ | -------------------------------------------------------- |
+| *(absent, with `WP_PORT`)*       | `wordpress`  | Web, phpMyAdmin, Mailhog (+ Live if URL set)             |
+| `static-php`                     | `static/php` | Web only (+ Live if URL set)                             |
+| `static-php-mailhog`             | `static/php` | Web, Mailhog (+ Live if URL set)                         |
 
 All stacks: optional `MIGRATION_SOURCE_URL` in `.env` adds a **Live** link in the index (create via menu/`--source-url`; WordPress migrate writes it detect-first).

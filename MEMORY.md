@@ -10,12 +10,12 @@
 **Date**: 2026-11-25
 **Phase**: Phase 2 · Hardening & polish
 
-**Working on**: Pin lifecycle **#3** link hub configured versions (`docs/issue-worklogs/active/show-link-hub-configured-versions.md`).
+**Working on**: Pin lifecycle **#3** link hub configured versions — package done locally (closing comment drafted). Await **close worklog** / **close github issue**. Next = Phase 2 · C.
 
 **Next steps**:
 - [x] 1) Pin on create/migrate (`docs/issue-worklogs/done/pin-stack-image-versions-on-create-migrate.md`) — local worklog closed 2026-11-25
 - [x] 2) Guided image bump CLI + menu (`docs/issue-worklogs/done/guided-image-version-bump.md`) — local worklog closed 2026-11-25; GitHub #2 close when asked
-- [ ] 3) Hub configured versions + run state (`docs/issue-worklogs/active/show-link-hub-configured-versions.md`) — **active**
+- [x] 3) Hub configured versions + run state (`docs/issue-worklogs/active/show-link-hub-configured-versions.md`) — package done; closing comment ready; local/GitHub close when asked
 - [x] Smoke tests for stack CLIs (Phase 2 · A — pin suite under `tests/smoke-*.sh`)
 - [ ] Slim-fill `docs/ARCHITECTURE.md` gaps (Phase 2 · C)
 - [ ] Optional TUI polish only for concrete friction (Phase 2 · D)
@@ -62,6 +62,13 @@
 - 2026-11-25 Hub: drop “Suggested next port” hint; meta Source shows resolved `$WEBSITES_ROOT/*/.env`
 - 2026-11-25 Hub footer: version + author + GitHub link (drop regenerate/bookmark/convention paths)
 - 2026-11-25 Hub CSS: minimal neo-brutal (hard border/shadow, stone palette; catalog-inspired)
+- 2026-11-25 #3: hub image-tag labels (`trockendock_hub_label_*` in stack-image-pins; WP pin/`WP latest` + PHP/MariaDB); shown in card subtitle
+- 2026-11-25 #3: hub subtitle Multisite (`WP_MULTISITE=1`) + Compose run state (`running`/`stopped` for wordpress/web)
+- 2026-11-25 #3: hub card subtitle drops slug; order `stack · Multisite · PHP · WP · MariaDB · run state`
+- 2026-11-25 #3: hub card layout — run-state badge (top right), stack/Multisite meta, version chips
+- 2026-11-25 #3: hub system meta only `wordpress` / `static/php` (mailhog via link, not label)
+- 2026-11-25 #3 docs: `port-convention.md` link-hub card contents + pin lifecycle cross-links; getting-started pointer
+- 2026-11-25 #3: manual hub regen smoke (running+stopped); MEMORY/ROADMAP package done; closing comment drafted
 
 ---
 

@@ -28,7 +28,7 @@ Requires a working `config/paths.env` (or `.example` fallback via `load-config.s
 | Script | What it checks |
 | ------ | -------------- |
 | `smoke-load-config.sh` | Paths load; optional `stack-defaults.env`; `.example` is never a version fallback |
-| `smoke-stack-image-pins-lib.sh` | `stacks/lib/stack-image-pins.sh` format / validate / parse / `.env` writer |
+| `smoke-stack-image-pins-lib.sh` | `stacks/lib/stack-image-pins.sh` format / validate / parse / hub labels / `.env` writer |
 | `smoke-wp-stack-project-create-pins.sh` | `wp-stack project create` requires pins or defaults; rejects floating WP tags |
 | `smoke-static-stack-project-create-pins.sh` | `static-stack project create` requires `--php` or `DEFAULT_PHP_IMAGE` |
 | `smoke-wp-stack-migrate-pins.sh` | `wp-stack migrate` dry-run proposes pins from backup + overrides |

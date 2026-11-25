@@ -103,3 +103,77 @@ trockendock_parse_php_image_minor() {
   fi
   printf '%s' "$minor"
 }
+
+# --- Hub display labels (configured tags only; no runtime version queries) ---
+
+# Join non-empty label parts with " · ".
+trockendock_hub_join_labels() {
+  local out="" part
+  for part in "$@"; do
+    [[ -n "$part" ]] || continue
+    if [[ -n "$out" ]]; then
+      out="${out} · ${part}"
+    else
+      out="$part"
+    fi
+  done
+  printf '%s' "$out"
+}
+
+# WORDPRESS_IMAGE → "WP 6.7.2" when core is pinned; else "WP latest" for wordpress:* tags.
+trockendock_hub_label_wp() {
+  local image="${1:-}" parts wp_core
+  [[ -n "$image" ]] || return 1
+  if parts="$(trockendock_parse_wordpress_image_parts "$image")"; then
+    read -r wp_core _ <<<"$parts"
+    printf 'WP %s' "$wp_core"
+    return 0
+  fi
+  if [[ "$image" == wordpress:* ]]; then
+    printf 'WP latest'
+    return 0
+  fi
+  return 1
+}
+
+# PHP minor from a WORDPRESS_IMAGE tag when present → "PHP 8.3".
+trockendock_hub_label_php_from_wordpress_image() {
+  local image="${1:-}" parts php_minor
+  [[ -n "$image" ]] || return 1
+  if parts="$(trockendock_parse_wordpress_image_parts "$image")"; then
+    read -r _ php_minor <<<"$parts"
+    printf 'PHP %s' "$php_minor"
+    return 0
+  fi
+  # Floating tags like wordpress:php8.3-apache
+  php_minor="$(printf '%s' "$image" | sed -n 's/^wordpress:.*php\([0-9][0-9.]*\).*/\1/p')"
+  if [[ -n "$php_minor" ]]; then
+    printf 'PHP %s' "$php_minor"
+    return 0
+  fi
+  return 1
+}
+
+# PHP_IMAGE → "PHP 8.3".
+trockendock_hub_label_php() {
+  local image="${1:-}" minor
+  [[ -n "$image" ]] || return 1
+  minor="$(trockendock_parse_php_image_minor "$image")" || return 1
+  printf 'PHP %s' "$minor"
+}
+
+# MARIADB_IMAGE → "MariaDB 10" / "MariaDB 10.11" (major or major.minor; not "latest").
+trockendock_hub_label_mariadb() {
+  local image="${1:-}" ver
+  [[ -n "$image" ]] || return 1
+  ver="$(printf '%s' "$image" | sed -n 's/^mariadb:\([0-9][0-9.]*\).*/\1/p')"
+  [[ -n "$ver" ]] || return 1
+  printf 'MariaDB %s' "$ver"
+}
+
+# WP_MULTISITE=1 → "Multisite"; omit for unset / 0 / other.
+trockendock_hub_label_multisite() {
+  local flag="${1:-}"
+  [[ "$flag" == "1" ]] || return 1
+  printf 'Multisite'
+}
