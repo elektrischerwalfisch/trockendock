@@ -8,12 +8,23 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 WP_STACK="${ROOT}/stacks/wordpress/bin/wp-stack"
 FOLDER="smoke-migrate-pins-$$"
 
+# Hide operator stack-defaults while the CLI reloads load-config.sh.
+_SMOKE_DEFAULTS="${ROOT}/config/stack-defaults.env"
+_SMOKE_DEFAULTS_BAK=""
+if [[ -f "${_SMOKE_DEFAULTS}" ]]; then
+  _SMOKE_DEFAULTS_BAK="${_SMOKE_DEFAULTS}.bak-smoke-$$"
+  mv "${_SMOKE_DEFAULTS}" "${_SMOKE_DEFAULTS_BAK}"
+fi
+
 # shellcheck disable=SC1091
 source "${ROOT}/config/load-config.sh"
 
 PROJECT_DIR="${WEBSITES_ROOT}/${FOLDER}"
 cleanup() {
   rm -rf "${PROJECT_DIR}"
+  if [[ -n "${_SMOKE_DEFAULTS_BAK}" && -f "${_SMOKE_DEFAULTS_BAK}" ]]; then
+    mv "${_SMOKE_DEFAULTS_BAK}" "${_SMOKE_DEFAULTS}"
+  fi
 }
 trap cleanup EXIT
 

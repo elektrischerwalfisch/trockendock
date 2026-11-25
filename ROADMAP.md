@@ -30,7 +30,7 @@ After completing any piece of work, complete the relevant items below in the sam
 | Current Phase | **Phase 2 · Hardening & polish**        |
 | Next Phase    | Phase 3 · TBD                           |
 | Live Version  | `1.0.0` (see `VERSION`)                 |
-| Last Updated  | 2026-11-18                              |
+| Last Updated  | 2026-11-24                              |
 
 ---
 
@@ -51,7 +51,8 @@ After completing any piece of work, complete the relevant items below in the sam
 
 | # | Item | Status |
 |---|------|--------|
-| A | Smoke tests for `wp-stack` / `static-stack` (`--dry-run`, `bash -n`, small fixture if practical) | Open |
+| A | Smoke tests for `wp-stack` / `static-stack` (`--dry-run`, `bash -n`, small fixture if practical) | Done (pin create/migrate + load-config / helpers under `tests/smoke-*.sh`) |
+| — | Pin lifecycle #1 (explicit image pins on create/migrate + docs) | Done locally — Next: #2 guided bump (`docs/issue-worklogs/unassigned/guided-image-version-bump.md`) |
 | C | Slim-fill `docs/ARCHITECTURE.md` gaps from operator knowledge | Open |
 | D | TUI polish only for concrete menu bugs/friction | Optional |
 

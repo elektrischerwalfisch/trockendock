@@ -10,16 +10,13 @@
 **Date**: 2026-11-24
 **Phase**: Phase 2 · Hardening & polish
 
-**Working on**: Stack image pin lifecycle — #1 active (section 3 docs done + SSOT/link cleanup; smoke / close remain)
-
-**Session note**: Create hub failure was stale `TROCKENDOCK_ROOT` in `paths.env`. Temporary loader/common/menu resilience reverted — fix is correcting `paths.env` only.
-
+**Working on**: Pin lifecycle — **#1 package done** (smoke green); next = **#2** guided bump. Local **close worklog** / GitHub close only when asked.
 
 **Next steps**:
-- [ ] 1) Pin on create/migrate (`docs/issue-worklogs/unassigned/pin-stack-image-versions-on-create-migrate.md`)
+- [x] 1) Pin on create/migrate (`docs/issue-worklogs/active/pin-stack-image-versions-on-create-migrate.md`) — impl + docs + smoke; close when requested
 - [ ] 2) Guided image bump CLI + menu (`docs/issue-worklogs/unassigned/guided-image-version-bump.md`)
 - [ ] 3) Hub configured versions + run state (`docs/issue-worklogs/unassigned/show-link-hub-configured-versions.md`)
-- [ ] Smoke tests for stack CLIs (Phase 2 · A)
+- [x] Smoke tests for stack CLIs (Phase 2 · A — pin suite under `tests/smoke-*.sh`)
 - [ ] Slim-fill `docs/ARCHITECTURE.md` gaps (Phase 2 · C)
 - [ ] Optional TUI polish only for concrete friction (Phase 2 · D)
 
@@ -53,6 +50,8 @@
 - 2026-11-24 #1 docs: Static PHP create/`PHP_IMAGE` + defaults UX; menu pin UX section (WP + Static) in `docs/getting-started.md`
 - 2026-11-24 #1 docs: cross-links — hub Live needs `MIGRATION_SOURCE_URL` (#3); guided bump (#2) may refresh `stack-defaults.env`
 - 2026-11-24 #1 docs cleanup: SSOT roles (defaults / menu UX / migrate pins); drop #2/#3 worklog links from ops docs
+- 2026-11-24 #1 hygiene: trim `stacks/wordpress/README.md` migrate narrative; fix MEMORY worklog path; align static template READMEs
+- 2026-11-24 #1 smoke suite green (create/migrate pins + live URL detect-first; defaults isolated); Phase 2 · A marked Done; Next = #2
 
 ---
 

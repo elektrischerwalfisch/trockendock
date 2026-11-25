@@ -21,7 +21,7 @@ Or all at once:
 for t in ./tests/smoke-*.sh; do "$t" || exit 1; done
 ```
 
-Requires a working `config/paths.env` (or `.example` fallback via `load-config.sh`) for scripts that exercise stack CLIs. Create smokes use `--dry-run` only — they do not write under `$WEBSITES_ROOT`.
+Requires a working `config/paths.env` (or `.example` fallback via `load-config.sh`) for scripts that exercise stack CLIs. Create smokes use `--dry-run` only — they do not write under `$WEBSITES_ROOT`. Pin create/migrate smokes temporarily move `config/stack-defaults.env` aside (restored on exit) so operator defaults cannot leak into “no defaults” cases. Migrate smoke covers dry-run pin proposals and live-URL detect-first — not a full `--yes` Docker restore.
 
 ## Scripts
 

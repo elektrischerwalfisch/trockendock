@@ -8,10 +8,24 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 WP_STACK="${ROOT}/stacks/wordpress/bin/wp-stack"
 FOLDER="smoke-pin-create-$$"
 
+# Hide operator stack-defaults: stack CLIs re-source load-config.sh and would
+# otherwise pick up local DEFAULT_* (unset in this shell is not enough).
+_SMOKE_DEFAULTS="${ROOT}/config/stack-defaults.env"
+_SMOKE_DEFAULTS_BAK=""
+if [[ -f "${_SMOKE_DEFAULTS}" ]]; then
+  _SMOKE_DEFAULTS_BAK="${_SMOKE_DEFAULTS}.bak-smoke-$$"
+  mv "${_SMOKE_DEFAULTS}" "${_SMOKE_DEFAULTS_BAK}"
+fi
+restore_smoke_defaults() {
+  if [[ -n "${_SMOKE_DEFAULTS_BAK}" && -f "${_SMOKE_DEFAULTS_BAK}" ]]; then
+    mv "${_SMOKE_DEFAULTS_BAK}" "${_SMOKE_DEFAULTS}"
+  fi
+}
+trap restore_smoke_defaults EXIT
+
 # shellcheck disable=SC1091
 source "${ROOT}/config/load-config.sh"
 
-# Isolate from operator stack-defaults for failure cases
 unset DEFAULT_WORDPRESS_IMAGE DEFAULT_MARIADB_IMAGE DEFAULT_PHP_IMAGE
 STACK_DEFAULTS_LOADED=0
 export STACK_DEFAULTS_LOADED DEFAULT_WORDPRESS_IMAGE DEFAULT_MARIADB_IMAGE DEFAULT_PHP_IMAGE

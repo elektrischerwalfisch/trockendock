@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- test: isolate pin smokes from stack-defaults and mark pin package done
 - docs: tighten pin doc SSOTs and drop planning links from ops guides
 - docs: document stack image pin defaults menu migrate and hub cross-links
 - feat: add migrate menu pin overrides with dry-run proposals

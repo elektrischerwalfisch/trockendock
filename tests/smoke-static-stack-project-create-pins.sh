@@ -8,6 +8,21 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 STATIC_STACK="${ROOT}/stacks/static-php/bin/static-stack"
 FOLDER="smoke-static-pin-$$"
 
+# Hide operator stack-defaults: stack CLIs re-source load-config.sh and would
+# otherwise pick up local DEFAULT_* (unset in this shell is not enough).
+_SMOKE_DEFAULTS="${ROOT}/config/stack-defaults.env"
+_SMOKE_DEFAULTS_BAK=""
+if [[ -f "${_SMOKE_DEFAULTS}" ]]; then
+  _SMOKE_DEFAULTS_BAK="${_SMOKE_DEFAULTS}.bak-smoke-$$"
+  mv "${_SMOKE_DEFAULTS}" "${_SMOKE_DEFAULTS_BAK}"
+fi
+restore_smoke_defaults() {
+  if [[ -n "${_SMOKE_DEFAULTS_BAK}" && -f "${_SMOKE_DEFAULTS_BAK}" ]]; then
+    mv "${_SMOKE_DEFAULTS_BAK}" "${_SMOKE_DEFAULTS}"
+  fi
+}
+trap restore_smoke_defaults EXIT
+
 # shellcheck disable=SC1091
 source "${ROOT}/config/load-config.sh"
 

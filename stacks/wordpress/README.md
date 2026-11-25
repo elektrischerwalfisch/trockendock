@@ -42,18 +42,14 @@ wp-stack project create <folder> \
   [--slug <slug>] [--theme <theme-slug>] [--dry-run]
 ```
 
-Image pins are required (flags or `DEFAULT_*` in `config/stack-defaults.env`). Floating tags like `wordpress:php8.3-apache` are rejected. Optional `--source-url` writes `MIGRATION_SOURCE_URL` (live link in the hub). Copies `templates/wordpress` to `$WEBSITES_ROOT/<folder>/`, writes `.env` (pins, next free `80Nx` port block, random DB passwords), runs `$GENERATE_INDEX_SCRIPT`.
-
-Onboarding: [`../../docs/wordpress/getting-started.md`](../../docs/wordpress/getting-started.md) · platform entry: [`../../docs/getting-started.md`](../../docs/getting-started.md).
+Pins required (flags or `config/stack-defaults.env`). Optional `--source-url` → `MIGRATION_SOURCE_URL`. Details: [`../../docs/wordpress/getting-started.md`](../../docs/wordpress/getting-started.md) · soft defaults: [`../../config/README.md`](../../config/README.md).
 
 ### Migrate a backup (one command)
 
-`migrate` restores one backup from `import/` in the project: it reads `wp-content`, the SQL dump, and optional `manifest.json` (table prefix + source URL), restores `wp-content`, wipes the project database, imports the DB, rewrites URLs, and recreates the container. A successful `--yes` then empties `import/` and keeps the folder.
-
-Put the backup directly in `import/` — no extra folder around it. `--only all` needs `wp-content/` plus exactly one `.sql` or `.sql.gz`. `content` needs `wp-content/`. `db` needs the one dump. Anything else in `import/` (a dated wrapper, `wp-admin`, a second dump) aborts the run. `backups/` is not used and is not deleted.
+Backup layout, pin resolution, prefix/source URL, Multisite: [`../../docs/wordpress/migration.md`](../../docs/wordpress/migration.md).
 
 ```bash
-# Dry run — only reports what was detected and the plan
+# Dry run — detection + plan (including proposed image pins)
 wp-stack migrate --project <folder>
 
 # Full restore (default)
@@ -64,9 +60,12 @@ wp-stack migrate --project <folder> --only content --yes
 
 # Database + URL rewrite only (keeps local wp-content)
 wp-stack migrate --project <folder> --only db --yes
-```
 
-Detected `WP_TABLE_PREFIX` and `MIGRATION_SOURCE_URL` are written to `.env`. Source URL is detect-first (manifest / SQL / existing `.env`); `--source-url` only fills a gap. On `--yes`, migrate also writes explicit `WORDPRESS_IMAGE` / `MARIADB_IMAGE` pins (dry-run prints the proposal first; messages say **pin applied** vs **override used**): WP core from backup `manifest.json` when present, PHP/MariaDB from the current project pin, `config/stack-defaults.env`, or `--php` / `--wordpress-image` / `--mariadb-image`. Prefix detection is Multisite-aware (base prefix from `*_blogs` / primary `*_options`, not `*_2_options`). When `*_blogs` is present, migrate also sets `WP_MULTISITE=1` (domain is `localhost:<WP_PORT>` via Compose) and rewrites `{prefix}blogs`/`site` domains during URL replace. Path Multisite needs the template `.htaccess` (mounted in Compose) so `/en/wp-content/...` resolves. Add `--chown-www` to set `wp-content` owner to `33:33` (www-data; uses sudo).
+# Optional pin / URL overrides (see migration.md)
+wp-stack migrate --project <folder> --yes \
+  [--wordpress-image <tag>] [--mariadb-image <tag>] [--php <x.y>] \
+  [--source-url https://www.example.de] [--chown-www]
+```
 
 ### Migrate step by step
 
