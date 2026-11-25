@@ -20,6 +20,7 @@ Usage:
   wp-stack db import <file> [options]
   wp-stack urls replace [options]
   wp-stack migrate [options]
+  wp-stack image bump [options]
 
 Run a subcommand with --help for details.
 EOF
@@ -95,6 +96,25 @@ main() {
       # shellcheck source=../lib/migrate.sh
       source "${LIB_DIR}/migrate.sh"
       wp_stack_migrate "$@"
+      ;;
+    image)
+      case "$subcommand" in
+        bump)
+          shift 2
+          # shellcheck source=../lib/image-bump.sh
+          source "${LIB_DIR}/image-bump.sh"
+          wp_stack_image_bump "$@"
+          ;;
+        ""|-h|--help|help)
+          # shellcheck source=../lib/image-bump.sh
+          source "${LIB_DIR}/image-bump.sh"
+          wp_stack_image_bump_usage
+          ;;
+        *)
+          wp_stack_usage
+          exit 1
+          ;;
+      esac
       ;;
     *)
       wp_stack_usage

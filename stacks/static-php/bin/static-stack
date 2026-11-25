@@ -17,8 +17,9 @@ static-stack — Static PHP stack tooling (Trockendock)
 
 Usage:
   static-stack project create <folder> --variant <name> [options]
+  static-stack image bump [options]
 
-Variants:
+Variants (create):
   static-php           Apache + PHP (static/php)
   static-php-mailhog   Apache + PHP + Mailhog (static/php/mailhog)
 
@@ -46,6 +47,25 @@ main() {
           # shellcheck source=../lib/project-create.sh
           source "${LIB_DIR}/project-create.sh"
           static_stack_project_create_usage
+          ;;
+        *)
+          static_stack_usage
+          exit 1
+          ;;
+      esac
+      ;;
+    image)
+      case "$subcommand" in
+        bump)
+          shift 2
+          # shellcheck source=../lib/image-bump.sh
+          source "${LIB_DIR}/image-bump.sh"
+          static_stack_image_bump "$@"
+          ;;
+        ""|-h|--help|help)
+          # shellcheck source=../lib/image-bump.sh
+          source "${LIB_DIR}/image-bump.sh"
+          static_stack_image_bump_usage
           ;;
         *)
           static_stack_usage

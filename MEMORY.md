@@ -7,14 +7,14 @@
 
 ## Current Status
 
-**Date**: 2026-11-24
+**Date**: 2026-11-25
 **Phase**: Phase 2 · Hardening & polish
 
-**Working on**: Pin lifecycle — **#1 package done** (smoke green); next = **#2** guided bump. Local **close worklog** / GitHub close only when asked.
+**Working on**: Pin lifecycle **#2** guided bump — WP + Static `image bump` CLI (unset landmine + compose on `--yes`); next = menu + docs.
 
 **Next steps**:
-- [x] 1) Pin on create/migrate (`docs/issue-worklogs/active/pin-stack-image-versions-on-create-migrate.md`) — impl + docs + smoke; close when requested
-- [ ] 2) Guided image bump CLI + menu (`docs/issue-worklogs/unassigned/guided-image-version-bump.md`)
+- [x] 1) Pin on create/migrate (`docs/issue-worklogs/done/pin-stack-image-versions-on-create-migrate.md`) — local worklog closed 2026-11-25
+- [ ] 2) Guided image bump CLI + menu (`docs/issue-worklogs/active/guided-image-version-bump.md`)
 - [ ] 3) Hub configured versions + run state (`docs/issue-worklogs/unassigned/show-link-hub-configured-versions.md`)
 - [x] Smoke tests for stack CLIs (Phase 2 · A — pin suite under `tests/smoke-*.sh`)
 - [ ] Slim-fill `docs/ARCHITECTURE.md` gaps (Phase 2 · C)
@@ -52,6 +52,9 @@
 - 2026-11-24 #1 docs cleanup: SSOT roles (defaults / menu UX / migrate pins); drop #2/#3 worklog links from ops docs
 - 2026-11-24 #1 hygiene: trim `stacks/wordpress/README.md` migrate narrative; fix MEMORY worklog path; align static template READMEs
 - 2026-11-24 #1 smoke suite green (create/migrate pins + live URL detect-first; defaults isolated); Phase 2 · A marked Done; Next = #2
+- 2026-11-25 #1 **close worklog** → `docs/issue-worklogs/done/`; closing comment ready; GitHub #1 still open until asked
+- 2026-11-25 #2: `wp-stack image bump` designed + shipped (dry-run / `--yes` pin write via `stack-image-pins.sh`); smoke `tests/smoke-wp-stack-image-bump.sh`
+- 2026-11-25 #2: `--yes` unsets shell image overrides then compose pull/recreate; `static-stack image bump`; smokes use `--skip-compose`
 
 ---
 

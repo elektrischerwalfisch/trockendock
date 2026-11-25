@@ -44,6 +44,15 @@ cd "${WEBSITES_ROOT}/<folder>"
 docker compose pull && docker compose up -d
 ```
 
+### Image bump (guided)
+
+```bash
+static-stack image bump --project <folder> --php 8.3
+static-stack image bump --project <folder> --php php:8.2-apache --yes
+```
+
+Dry-run default; `--yes` writes `PHP_IMAGE`, unsets shell image overrides, then recreates `web`. `--skip-compose` writes `.env` only.
+
 ## Documentation
 
 | Topic              | File                                                                           |

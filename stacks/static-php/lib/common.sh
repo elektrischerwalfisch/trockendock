@@ -58,3 +58,29 @@ static_stack_resolve_template() {
       ;;
   esac
 }
+
+# Resolve the project directory from a folder name under $WEBSITES_ROOT,
+# or fall back to the current directory. Sets STATIC_STACK_PROJECT_DIR.
+static_stack_resolve_project() {
+  local project="${1:-}"
+  local dir
+
+  if [[ -n "$project" ]]; then
+    dir="${WEBSITES_ROOT}/${project}"
+  else
+    dir="$PWD"
+  fi
+
+  [[ -f "${dir}/docker-compose.yml" ]] || static_stack_die "not a project directory: ${dir} (no docker-compose.yml — pass --project <folder> or cd into the project)"
+  [[ -f "${dir}/.env" ]] || static_stack_die "missing .env in ${dir}"
+
+  STATIC_STACK_PROJECT_DIR="$dir"
+}
+
+static_stack_load_env() {
+  local dir="$1"
+  set -a
+  # shellcheck disable=SC1090,SC1091
+  source "${dir}/.env"
+  set +a
+}

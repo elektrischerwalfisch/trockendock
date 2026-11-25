@@ -32,6 +32,8 @@ Requires a working `config/paths.env` (or `.example` fallback via `load-config.s
 | `smoke-wp-stack-project-create-pins.sh` | `wp-stack project create` requires pins or defaults; rejects floating WP tags |
 | `smoke-static-stack-project-create-pins.sh` | `static-stack project create` requires `--php` or `DEFAULT_PHP_IMAGE` |
 | `smoke-wp-stack-migrate-pins.sh` | `wp-stack migrate` dry-run proposes pins from backup + overrides |
+| `smoke-wp-stack-image-bump.sh` | `wp-stack image bump` dry-run + `--yes --skip-compose` write/unset |
+| `smoke-static-stack-image-bump.sh` | `static-stack image bump` dry-run + `--yes --skip-compose` write/unset |
 
 ## Conventions
 
