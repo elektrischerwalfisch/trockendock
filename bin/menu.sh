@@ -366,6 +366,46 @@ menu_wordpress_urls_replace() {
   menu_run "$WP_STACK" "${args[@]}"
 }
 
+menu_wordpress_image_bump() {
+  local folder wp_core php_minor mariadb_minor
+  local args=(image bump)
+
+  folder="$(menu_prompt "Project folder under \$WEBSITES_ROOT")"
+  [[ -n "$folder" ]] || return 0
+  args+=(--project "$folder")
+
+  cat <<'EOF'
+
+Image bump
+──────────
+  WordPress tags: https://hub.docker.com/_/wordpress/tags
+  MariaDB tags:   https://hub.docker.com/_/mariadb/tags
+  Format:         wordpress:<WP>-php<PHP>-apache
+  Enter (empty) keeps the current pin for that field.
+
+EOF
+
+  wp_core="$(menu_prompt_pin_optional "WordPress core" "x.y.z")"
+  php_minor="$(menu_prompt_pin_optional "PHP minor" "x.y")"
+  mariadb_minor="$(menu_prompt_pin_optional "MariaDB" "x.y")"
+
+  if [[ -z "$wp_core" && -z "$php_minor" && -z "$mariadb_minor" ]]; then
+    echo "Nothing to bump — enter at least one of WP core / PHP / MariaDB."
+    menu_pause
+    return 0
+  fi
+  [[ -n "$wp_core" ]] && args+=(--wordpress "$wp_core")
+  [[ -n "$php_minor" ]] && args+=(--php "$php_minor")
+  [[ -n "$mariadb_minor" ]] && args+=(--mariadb "$mariadb_minor")
+
+  if menu_confirm_yes "Dry run only"; then
+    menu_run "$WP_STACK" "${args[@]}"
+  else
+    args+=(--yes)
+    menu_run "$WP_STACK" "${args[@]}"
+  fi
+}
+
 menu_wordpress() {
   local choice
   while true; do
@@ -377,6 +417,7 @@ WordPress
   2) Migrate
   3) Import DB
   4) Replace URLs
+  5) Image bump
   0) Back
 
 EOF
@@ -386,6 +427,7 @@ EOF
       2) menu_wordpress_migrate ;;
       3) menu_wordpress_db_import ;;
       4) menu_wordpress_urls_replace ;;
+      5) menu_wordpress_image_bump ;;
       0|"") return 0 ;;
       *) echo "Unknown choice: ${choice}" ;;
     esac
@@ -452,6 +494,39 @@ EOF
   menu_run "$STATIC_STACK" "${create_args[@]}"
 }
 
+menu_static_image_bump() {
+  local folder php_minor php_image
+  local args=(image bump)
+
+  folder="$(menu_prompt "Project folder under \$WEBSITES_ROOT")"
+  [[ -n "$folder" ]] || return 0
+  args+=(--project "$folder")
+
+  cat <<'EOF'
+
+Image bump
+──────────
+  PHP tags: https://hub.docker.com/_/php/tags
+  Format:   php:<PHP>-apache
+
+EOF
+
+  php_minor="$(menu_prompt_pin "PHP minor" "x.y")"
+  php_image="$(trockendock_format_php_image "$php_minor")"
+  if ! trockendock_validate_php_image "$php_image"; then
+    menu_pause
+    return 0
+  fi
+  args+=(--php "$php_image")
+
+  if menu_confirm_yes "Dry run only"; then
+    menu_run "$STATIC_STACK" "${args[@]}"
+  else
+    args+=(--yes)
+    menu_run "$STATIC_STACK" "${args[@]}"
+  fi
+}
+
 menu_static() {
   local choice
   while true; do
@@ -460,12 +535,14 @@ menu_static() {
 Static PHP
 ──────────
   1) Create project
+  2) Image bump
   0) Back
 
 EOF
     read -r -p "Choice: " choice
     case "$choice" in
       1) menu_static_create ;;
+      2) menu_static_image_bump ;;
       0|"") return 0 ;;
       *) echo "Unknown choice: ${choice}" ;;
     esac

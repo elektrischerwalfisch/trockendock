@@ -81,5 +81,18 @@ grep -q "skipped compose" "$out" || {
   cat "$out" >&2
   exit 1
 }
+grep -q "refreshed link hub:" "$out" || {
+  echo "expected automatic link hub refresh after --yes" >&2
+  cat "$out" "$err" >&2
+  exit 1
+}
+
+"${WP_STACK}" image bump --project "${FOLDER}" --mariadb 10.11 --yes --skip-compose --no-index \
+  >"$out" 2>"$err"
+grep -q "skipped link hub refresh (--no-index)" "$out" || {
+  echo "expected --no-index skip note" >&2
+  cat "$out" "$err" >&2
+  exit 1
+}
 
 echo "smoke-wp-stack-image-bump: ok"

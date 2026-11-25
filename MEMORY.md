@@ -10,11 +10,11 @@
 **Date**: 2026-11-25
 **Phase**: Phase 2 · Hardening & polish
 
-**Working on**: Pin lifecycle **#2** guided bump — WP + Static `image bump` CLI (unset landmine + compose on `--yes`); next = menu + docs.
+**Working on**: Pin lifecycle **#2** guided bump — CLI + menu + docs + auto hub refresh; next = close checklist.
 
 **Next steps**:
 - [x] 1) Pin on create/migrate (`docs/issue-worklogs/done/pin-stack-image-versions-on-create-migrate.md`) — local worklog closed 2026-11-25
-- [ ] 2) Guided image bump CLI + menu (`docs/issue-worklogs/active/guided-image-version-bump.md`)
+- [ ] 2) Guided image bump CLI + menu (`docs/issue-worklogs/active/guided-image-version-bump.md`) — §1–2 done; close checklist open
 - [ ] 3) Hub configured versions + run state (`docs/issue-worklogs/unassigned/show-link-hub-configured-versions.md`)
 - [x] Smoke tests for stack CLIs (Phase 2 · A — pin suite under `tests/smoke-*.sh`)
 - [ ] Slim-fill `docs/ARCHITECTURE.md` gaps (Phase 2 · C)
@@ -55,6 +55,8 @@
 - 2026-11-25 #1 **close worklog** → `docs/issue-worklogs/done/`; closing comment ready; GitHub #1 still open until asked
 - 2026-11-25 #2: `wp-stack image bump` designed + shipped (dry-run / `--yes` pin write via `stack-image-pins.sh`); smoke `tests/smoke-wp-stack-image-bump.sh`
 - 2026-11-25 #2: `--yes` unsets shell image overrides then compose pull/recreate; `static-stack image bump`; smokes use `--skip-compose`
+- 2026-11-25 #2: menu WordPress/Static **Image bump**; `docs/wordpress/image-bump.md` rewritten menu → CLI → manual
+- 2026-11-25 #2: `--yes` image bump auto-refreshes link hub (soft-fail; `--no-index` opt-out)
 
 ---
 

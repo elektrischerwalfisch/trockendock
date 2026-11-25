@@ -20,6 +20,7 @@ Options:
   --php <x.y|php:x.y-apache>   Target PHP pin (required)
   --yes                  Write pin + compose apply (default: dry-run only)
   --skip-compose         With --yes: write .env only (no pull/recreate)
+  --no-index             With --yes: skip link hub refresh
   -h, --help             Show this help
 
 Hub tags:
@@ -36,8 +37,20 @@ static_stack_image_bump_read_env_var() {
   grep -E "^${key}=" "$file" 2>/dev/null | head -n 1 | cut -d= -f2- | tr -d '\r' || true
 }
 
+static_stack_image_bump_refresh_hub() {
+  if [[ ! -x "${GENERATE_INDEX_SCRIPT:-}" ]]; then
+    static_stack_info "WARNING: GENERATE_INDEX_SCRIPT missing or not executable — skipped hub refresh"
+    return 0
+  fi
+  if "$GENERATE_INDEX_SCRIPT"; then
+    static_stack_info "refreshed link hub: ${LOCAL_DEV_INDEX_FILE}"
+  else
+    static_stack_info "WARNING: link hub refresh failed — run \$GENERATE_INDEX_SCRIPT manually"
+  fi
+}
+
 static_stack_image_bump() {
-  local project="" yes=0 skip_compose=0 php_input=""
+  local project="" yes=0 skip_compose=0 skip_index=0 php_input=""
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -61,6 +74,10 @@ static_stack_image_bump() {
         ;;
       --skip-compose)
         skip_compose=1
+        shift
+        ;;
+      --no-index)
+        skip_index=1
         shift
         ;;
       --*)
@@ -101,6 +118,12 @@ static_stack_image_bump() {
   # Landmine: Compose prefers shell env over project .env.
   unset WORDPRESS_IMAGE MARIADB_IMAGE PHP_IMAGE
   static_stack_info "unset shell WORDPRESS_IMAGE MARIADB_IMAGE PHP_IMAGE (Compose must read .env)"
+
+  if [[ "$skip_index" -eq 0 ]]; then
+    static_stack_image_bump_refresh_hub
+  else
+    static_stack_info "skipped link hub refresh (--no-index)"
+  fi
 
   if [[ "$skip_compose" -eq 1 ]]; then
     static_stack_info "skipped compose (--skip-compose); pull/recreate when ready"

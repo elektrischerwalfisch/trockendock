@@ -69,14 +69,14 @@ wp-stack migrate --project <folder> --only db --yes
 
 ### Image bump (guided)
 
-Dry-run first; `--yes` writes pins, unsets shell `WORDPRESS_IMAGE`/`MARIADB_IMAGE`/`PHP_IMAGE`, then pull/recreate changed services. Use `--skip-compose` to write `.env` only.
+Dry-run first; `--yes` writes pins, unsets shell `WORDPRESS_IMAGE`/`MARIADB_IMAGE`/`PHP_IMAGE`, refreshes the link hub, then pull/recreate changed services. `--skip-compose` writes `.env` only (hub still refreshes); `--no-index` skips the hub.
 
 ```bash
 wp-stack image bump --project <folder> --wordpress <core> --php <x.y>
 wp-stack image bump --project <folder> --mariadb 10.11 --yes
 ```
 
-Details: [`../../docs/wordpress/image-bump.md`](../../docs/wordpress/image-bump.md) (manual path until rewritten).
+Details: [`../../docs/wordpress/image-bump.md`](../../docs/wordpress/image-bump.md).
 
 ### Migrate step by step
 

@@ -6,15 +6,14 @@ Platform entry (menu, paths, hub): [`../getting-started.md`](../getting-started.
 CLI reference: [`../../stacks/static-php/README.md`](../../stacks/static-php/README.md).  
 Soft defaults: [`../../config/README.md`](../../config/README.md).
 
-**Prefer the interactive menu** for create and start/stop/hub:
+**Prefer the interactive menu** for create, image bump, and start/stop/hub:
 
 ```bash
 cd "$TROCKENDOCK_ROOT"
 ./start-menu.sh
 ```
 
-→ Static PHP → Create project · Platform → Start / Stop / Refresh link hub. CLI below is the equivalent.
-
+→ Static PHP → Create project / Image bump · Platform → Start / Stop / Refresh link hub. CLI below is the equivalent.
 Menu pin UX: [`../getting-started.md`](../getting-started.md#menu-image-pin-ux).
 
 ## Variants
@@ -66,6 +65,10 @@ source config/load-config.sh
 "$GENERATE_INDEX_SCRIPT"
 ```
 
+## PHP image bump
+
+Menu → Static PHP → Image bump, or `static-stack image bump`. Shared guide (menu → CLI → manual): [`../wordpress/image-bump.md`](../wordpress/image-bump.md).
+
 ## Mailhog variant
 
 UI / ports: [`../mailhog.md`](../mailhog.md). PHP wire-up: [`mailhog.md`](mailhog.md).
@@ -79,6 +82,7 @@ One `80Nx` block per project (shared with WordPress): static/php uses `…1` onl
 | Topic         | Path                                                               |
 | ------------- | ------------------------------------------------------------------ |
 | Area index    | [`README.md`](README.md)                                           |
+| Image bump    | [`../wordpress/image-bump.md`](../wordpress/image-bump.md)         |
 | Mailhog       | [`mailhog.md`](mailhog.md)                                         |
 | Menu pin UX   | [`../getting-started.md`](../getting-started.md#menu-image-pin-ux) |
 | Soft defaults | [`../../config/README.md`](../../config/README.md)                 |

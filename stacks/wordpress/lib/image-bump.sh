@@ -24,6 +24,7 @@ Options:
   --mariadb <x.y>              MariaDB minor → mariadb:<x.y>
   --yes                        Write pins + compose apply (default: dry-run only)
   --skip-compose               With --yes: write .env only (no pull/recreate)
+  --no-index                   With --yes: skip link hub refresh
   -h, --help                   Show this help
 
 Hub tags:
@@ -47,8 +48,20 @@ wp_stack_image_bump_major() {
   printf '%s' "${ver%%.*}"
 }
 
+wp_stack_image_bump_refresh_hub() {
+  if [[ ! -x "${GENERATE_INDEX_SCRIPT:-}" ]]; then
+    wp_stack_info "WARNING: GENERATE_INDEX_SCRIPT missing or not executable — skipped hub refresh"
+    return 0
+  fi
+  if "$GENERATE_INDEX_SCRIPT"; then
+    wp_stack_info "refreshed link hub: ${LOCAL_DEV_INDEX_FILE}"
+  else
+    wp_stack_info "WARNING: link hub refresh failed — run \$GENERATE_INDEX_SCRIPT manually"
+  fi
+}
+
 wp_stack_image_bump() {
-  local project="" yes=0 skip_compose=0
+  local project="" yes=0 skip_compose=0 skip_index=0
   local wordpress_image="" wordpress_core="" php_minor=""
   local mariadb_image="" mariadb_minor=""
 
@@ -94,6 +107,10 @@ wp_stack_image_bump() {
         ;;
       --skip-compose)
         skip_compose=1
+        shift
+        ;;
+      --no-index)
+        skip_index=1
         shift
         ;;
       --*)
@@ -191,6 +208,12 @@ wp_stack_image_bump() {
   # Landmine: Compose prefers shell env over project .env — stale exports block bumps.
   unset WORDPRESS_IMAGE MARIADB_IMAGE PHP_IMAGE
   wp_stack_info "unset shell WORDPRESS_IMAGE MARIADB_IMAGE PHP_IMAGE (Compose must read .env)"
+
+  if [[ "$skip_index" -eq 0 ]]; then
+    wp_stack_image_bump_refresh_hub
+  else
+    wp_stack_info "skipped link hub refresh (--no-index)"
+  fi
 
   if [[ "$skip_compose" -eq 1 ]]; then
     wp_stack_info "skipped compose (--skip-compose); pull/recreate when ready"

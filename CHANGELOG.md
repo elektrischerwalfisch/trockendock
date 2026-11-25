@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- feat: add image bump menu entries and auto-refresh link hub on apply
 - feat: add guided image bump CLI for WordPress and Static PHP stacks
 - test: isolate pin smokes from stack-defaults and mark pin package done
 - docs: tighten pin doc SSOTs and drop planning links from ops guides

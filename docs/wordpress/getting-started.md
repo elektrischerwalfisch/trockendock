@@ -93,7 +93,7 @@ Network DB upgrade after a Core bump (browser „Upgrade Network“ often fails 
 
 ## PHP / Core image bump
 
-Full steps (including backend-update vs `.env`): [`image-bump.md`](image-bump.md). Not available via `start-menu.sh`.
+Menu → WordPress → Image bump, or CLI. Full guide (menu → CLI → manual): [`image-bump.md`](image-bump.md).
 
 ## Related
 

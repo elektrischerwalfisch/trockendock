@@ -57,5 +57,18 @@ grep -q "unset shell WORDPRESS_IMAGE MARIADB_IMAGE PHP_IMAGE" "$out" || {
   cat "$out" "$err" >&2
   exit 1
 }
+grep -q "refreshed link hub:" "$out" || {
+  echo "expected automatic link hub refresh after --yes" >&2
+  cat "$out" "$err" >&2
+  exit 1
+}
+
+"${STATIC_STACK}" image bump --project "${FOLDER}" --php 8.2 --yes --skip-compose --no-index \
+  >"$out" 2>"$err"
+grep -q "skipped link hub refresh (--no-index)" "$out" || {
+  echo "expected --no-index skip note" >&2
+  cat "$out" "$err" >&2
+  exit 1
+}
 
 echo "smoke-static-stack-image-bump: ok"
