@@ -56,25 +56,37 @@ Modes (`--only content`, `--only db`), pin resolution, and flags: [`migration.md
 
 `wp-content` is a bind mount. Switch owner when you change how you work: **33:33** (`www-data`) for plugin/theme updates in wp-admin, **`$USER:$USER`** for editing on the host.
 
-For wp-admin updates:
+### Menu (recommended)
+
+```bash
+cd "$TROCKENDOCK_ROOT"
+./start-menu.sh
+```
+
+→ **WordPress** → **Switch wp-content ownership** — choose project → see current owner → confirm toggle to the other target (`[y/N]`). Runs stop → `sudo chown` → up. `sudo` may prompt for a password.
+
+### CLI
+
+```bash
+wp-stack wp-content owner status --project <folder>
+wp-stack wp-content owner toggle --project <folder>        # dry-run plan
+wp-stack wp-content owner toggle --project <folder> --yes  # apply
+wp-stack wp-content owner set www-data|host --project <folder> --yes
+```
+
+`toggle` only when current is www-data or host. For other UIDs, use `set`. `--skip-compose` skips stop/up (chown only).
+
+### Manual fallback
 
 ```bash
 cd "${WEBSITES_ROOT}/<folder>"
 docker compose stop
-sudo chown -R 33:33 wp-content
+sudo chown -R 33:33 wp-content          # wp-admin updates
+# or: sudo chown -R "$USER:$USER" wp-content   # host/Git editing
 docker compose up -d
 ```
 
-For host editing (Git, theme files):
-
-```bash
-cd "${WEBSITES_ROOT}/<folder>"
-docker compose stop
-sudo chown -R "$USER:$USER" wp-content
-docker compose up -d
-```
-
-After migrate/unpack, `700`/`600` as UID 1000 often yields a blank page — www-data needs read access.
+After migrate/unpack, `700`/`600` as UID 1000 often yields a blank page — www-data needs read access. Ownership switch does not fix modes.
 
 The template sets `FS_METHOD` via Compose so wp-admin does not ask for FTP credentials. Keep `wp-content` at `33:33` while installing/updating from wp-admin.
 

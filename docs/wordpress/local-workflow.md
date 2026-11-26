@@ -85,7 +85,7 @@ docker compose down    # remove containers, keep volumes
 docker compose down -v # full reset (destructive)
 ```
 
-Daily Compose / hub: [`../getting-started.md`](../getting-started.md#daily-commands). Image bump: [`image-bump.md`](image-bump.md).
+Daily Compose / hub: [`../getting-started.md`](../getting-started.md#daily-commands). Image bump: [`image-bump.md`](image-bump.md). Ownership (`wp-content` www-data ↔ host): [`getting-started.md`](getting-started.md#ownership-wp-content).
 
 ---
 

@@ -21,6 +21,7 @@ Usage:
   wp-stack urls replace [options]
   wp-stack migrate [options]
   wp-stack image bump [options]
+  wp-stack wp-content owner status|toggle|set … [options]
 
 Run a subcommand with --help for details.
 EOF
@@ -109,6 +110,25 @@ main() {
           # shellcheck source=../lib/image-bump.sh
           source "${LIB_DIR}/image-bump.sh"
           wp_stack_image_bump_usage
+          ;;
+        *)
+          wp_stack_usage
+          exit 1
+          ;;
+      esac
+      ;;
+    wp-content)
+      case "$subcommand" in
+        owner)
+          shift 2
+          # shellcheck source=../lib/wp-content-owner.sh
+          source "${LIB_DIR}/wp-content-owner.sh"
+          wp_stack_wp_content_owner "$@"
+          ;;
+        ""|-h|--help|help)
+          # shellcheck source=../lib/wp-content-owner.sh
+          source "${LIB_DIR}/wp-content-owner.sh"
+          wp_stack_wp_content_owner_usage
           ;;
         *)
           wp_stack_usage

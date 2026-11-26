@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- feat: add menu and CLI toggle for WordPress wp-content ownership
 - feat: use project picker for existing-project menu dialogs
 - feat: show configured stack versions and run state in the link hub
 - feat: restyle the link hub with neo-brutal chrome and clearer meta

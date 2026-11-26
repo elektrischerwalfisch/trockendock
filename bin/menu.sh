@@ -410,6 +410,59 @@ EOF
   fi
 }
 
+menu_wordpress_wp_content_owner() {
+  local folder name status_out current_line target_label
+
+  menu_pick_compose_project "Switch wp-content ownership — choose project" "all"
+  [[ -n "${MENU_SELECTED_PROJECT:-}" ]] || return 0
+  folder="$(basename "$MENU_SELECTED_PROJECT")"
+  name="$folder"
+
+  echo
+  if ! status_out="$("$WP_STACK" wp-content owner status --project "$folder" 2>&1)"; then
+    echo "$status_out"
+    echo
+    echo "trockendock-menu: could not read wp-content ownership."
+    menu_pause
+    return 0
+  fi
+  echo "$status_out"
+  echo
+
+  current_line="$(printf '%s\n' "$status_out" | sed -n 's/^[[:space:]]*current:[[:space:]]*//p' | head -1)"
+  if printf '%s\n' "$status_out" | grep -q 'unknown'; then
+    echo "Current owner is not www-data or host — toggle is unavailable."
+    echo "Use CLI to set explicitly, e.g.:"
+    echo "  $WP_STACK wp-content owner set www-data --project ${folder} --yes"
+    echo "  $WP_STACK wp-content owner set host --project ${folder} --yes"
+    menu_pause
+    return 0
+  fi
+
+  if printf '%s\n' "$current_line" | grep -q 'www-data'; then
+    target_label="host user (${USER}) — host/Git editing"
+  else
+    target_label="www-data (33:33) — wp-admin updates / plugins"
+  fi
+
+  cat <<EOF
+Switch to: ${target_label}
+
+This will:
+  1. docker compose stop
+  2. sudo chown -R … wp-content
+  3. docker compose up -d
+
+sudo may ask for your password.
+EOF
+  if ! menu_confirm_yes "Continue for ${name}"; then
+    echo "Cancelled."
+    menu_pause
+    return 0
+  fi
+  menu_run "$WP_STACK" wp-content owner toggle --project "$folder" --yes
+}
+
 menu_wordpress() {
   local choice
   while true; do
@@ -422,6 +475,7 @@ WordPress
   3) Import DB
   4) Replace URLs
   5) Image bump
+  6) Switch wp-content ownership
   0) Back
 
 EOF
@@ -432,6 +486,7 @@ EOF
       3) menu_wordpress_db_import ;;
       4) menu_wordpress_urls_replace ;;
       5) menu_wordpress_image_bump ;;
+      6) menu_wordpress_wp_content_owner ;;
       0|"") return 0 ;;
       *) echo "Unknown choice: ${choice}" ;;
     esac

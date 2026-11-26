@@ -78,6 +78,18 @@ wp-stack image bump --project <folder> --mariadb 10.11 --yes
 
 Details: [`../../docs/wordpress/image-bump.md`](../../docs/wordpress/image-bump.md).
 
+### wp-content ownership
+
+Toggle between www-data (`33:33`) and the host user. Prefer the menu (**WordPress** → **Switch wp-content ownership**). CLI:
+
+```bash
+wp-stack wp-content owner status --project <folder>
+wp-stack wp-content owner toggle --project <folder> --yes
+wp-stack wp-content owner set www-data|host --project <folder> --yes
+```
+
+Details: [`../../docs/wordpress/getting-started.md`](../../docs/wordpress/getting-started.md#ownership-wp-content).
+
 ### Migrate step by step
 
 The building blocks `migrate` uses, also callable on their own. Run inside the project directory or with `--project <folder>`; the stack must be running.
