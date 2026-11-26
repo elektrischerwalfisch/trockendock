@@ -10,7 +10,7 @@
 **Date**: 2026-11-26
 **Phase**: Phase 2 · Hardening & polish
 
-**Working on**: Phase 2 · D — [#4](https://github.com/elektrischerwalfisch/trockendock/issues/4) wp-content ownership switch (implemented; close worklog / commit when asked).
+**Working on**: Phase 2 · C — slim-fill `docs/ARCHITECTURE.md`, or backlog [#5](https://github.com/elektrischerwalfisch/trockendock/issues/5) validate image pins exist.
 
 **Next steps**:
 - [x] 1) Pin on create/migrate (`docs/issue-worklogs/done/pin-stack-image-versions-on-create-migrate.md`) — local worklog closed 2026-11-25
@@ -19,7 +19,7 @@
 - [x] Smoke tests for stack CLIs (Phase 2 · A — pin suite under `tests/smoke-*.sh`)
 - [ ] Slim-fill `docs/ARCHITECTURE.md` gaps (Phase 2 · C)
 - [x] #6 Menu pick existing project (`docs/issue-worklogs/done/menu-pick-existing-project.md`) — local + GitHub closed 2026-11-26
-- [x] #4 Menu WP `wp-content` ownership switch (`docs/issue-worklogs/active/menu-wp-content-ownership-switch.md`) — wired; **close worklog** / commit when asked
+- [x] #4 Menu WP `wp-content` ownership switch (`docs/issue-worklogs/done/menu-wp-content-ownership-switch.md`) — local + GitHub closed 2026-11-26
 - [ ] Backlog: validate image pins exist on Hub/registry ([`docs/issue-worklogs/unassigned/validate-docker-image-pins-exist.md`](docs/issue-worklogs/unassigned/validate-docker-image-pins-exist.md)) (#5)
 
 ---
@@ -78,6 +78,7 @@
 - 2026-11-26 #6: WP migrate/db/urls/bump + Static bump use `menu_pick_compose_project`; Create stays typed; docs + `bash -n`
 - 2026-11-26 #6 **close worklog** → `docs/issue-worklogs/done/`; **close github issue** #6; Next = #4 ownership switch
 - 2026-11-26 #4: `wp-stack wp-content owner` (status/toggle/set) + menu toggle UX; smoke + docs menu-first
+- 2026-11-26 #4 **close worklog** → `docs/issue-worklogs/done/`; **close github issue** #4; Next = Phase 2 · C or #5
 
 ---
 

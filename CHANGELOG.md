@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## 1.1.0 - 2026-11-26
+
+- chore: bump version to 1.1.0
 - feat: add menu and CLI toggle for WordPress wp-content ownership
 - feat: use project picker for existing-project menu dialogs
 - feat: show configured stack versions and run state in the link hub
