@@ -233,8 +233,9 @@ Flow: dry-run plan first (detect) → optional pin overrides (Hub + placeholders
 Source URL: detect-first; prompt only fills a gap.
 
 EOF
-  folder="$(menu_prompt "Project folder under \$WEBSITES_ROOT")"
-  [[ -n "$folder" ]] || return 0
+  menu_pick_compose_project "Migrate — choose project" "all"
+  [[ -n "${MENU_SELECTED_PROJECT:-}" ]] || return 0
+  folder="$(basename "$MENU_SELECTED_PROJECT")"
   args+=(--project "$folder")
   if ! menu_confirm_yes "Backup is laid out in import/ as shown above"; then
     return 0
@@ -346,8 +347,9 @@ EOF
 
 menu_wordpress_db_import() {
   local folder file
-  folder="$(menu_prompt "Project folder under \$WEBSITES_ROOT")"
-  [[ -n "$folder" ]] || return 0
+  menu_pick_compose_project "Import DB — choose project" "all"
+  [[ -n "${MENU_SELECTED_PROJECT:-}" ]] || return 0
+  folder="$(basename "$MENU_SELECTED_PROJECT")"
   file="$(menu_prompt "SQL dump path (absolute or relative to project)")"
   [[ -n "$file" ]] || return 0
   menu_run "$WP_STACK" db import "$file" --project "$folder"
@@ -355,8 +357,9 @@ menu_wordpress_db_import() {
 
 menu_wordpress_urls_replace() {
   local folder args=(urls replace)
-  folder="$(menu_prompt "Project folder under \$WEBSITES_ROOT")"
-  [[ -n "$folder" ]] || return 0
+  menu_pick_compose_project "Replace URLs — choose project" "all"
+  [[ -n "${MENU_SELECTED_PROJECT:-}" ]] || return 0
+  folder="$(basename "$MENU_SELECTED_PROJECT")"
   args+=(--project "$folder")
   if menu_confirm_yes "Dry run only"; then
     args+=(--dry-run)
@@ -370,8 +373,9 @@ menu_wordpress_image_bump() {
   local folder wp_core php_minor mariadb_minor
   local args=(image bump)
 
-  folder="$(menu_prompt "Project folder under \$WEBSITES_ROOT")"
-  [[ -n "$folder" ]] || return 0
+  menu_pick_compose_project "Image bump — choose project" "all"
+  [[ -n "${MENU_SELECTED_PROJECT:-}" ]] || return 0
+  folder="$(basename "$MENU_SELECTED_PROJECT")"
   args+=(--project "$folder")
 
   cat <<'EOF'
@@ -498,8 +502,9 @@ menu_static_image_bump() {
   local folder php_minor php_image
   local args=(image bump)
 
-  folder="$(menu_prompt "Project folder under \$WEBSITES_ROOT")"
-  [[ -n "$folder" ]] || return 0
+  menu_pick_compose_project "Image bump — choose project" "all"
+  [[ -n "${MENU_SELECTED_PROJECT:-}" ]] || return 0
+  folder="$(basename "$MENU_SELECTED_PROJECT")"
   args+=(--project "$folder")
 
   cat <<'EOF'

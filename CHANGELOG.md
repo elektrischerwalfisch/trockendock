@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- feat: use project picker for existing-project menu dialogs
 - feat: show configured stack versions and run state in the link hub
 - feat: restyle the link hub with neo-brutal chrome and clearer meta
 - feat: add image bump menu entries and auto-refresh link hub on apply

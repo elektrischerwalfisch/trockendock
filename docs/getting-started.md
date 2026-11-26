@@ -23,7 +23,7 @@ From `$TROCKENDOCK_ROOT`:
 ./start-menu.sh
 ```
 
-Numbered menus for WordPress, Static PHP, link hub refresh/open, Docker status, and start/stop/remove project stacks.
+Numbered menus for WordPress, Static PHP, link hub refresh/open, Docker status, and start/stop/remove project stacks. Dialogs that target an **existing** stack (migrate, DB import, URL replace, image bump, Platform start/stop/down) use a numbered project list under `$WEBSITES_ROOT`; **Create project** still asks for a new folder name.
 
 ### Menu image-pin UX
 

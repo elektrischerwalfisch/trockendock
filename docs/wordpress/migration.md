@@ -9,7 +9,7 @@ cd "$TROCKENDOCK_ROOT"
 ./start-menu.sh
 ```
 
-→ WordPress → Migrate / Import DB / Replace URLs. CLI below is the equivalent.
+→ WordPress → Migrate / Import DB / Replace URLs (each starts with a project list under `$WEBSITES_ROOT`). CLI below is the equivalent.
 
 Create/start basics: [`getting-started.md`](getting-started.md). CLI flags: [`../../stacks/wordpress/README.md`](../../stacks/wordpress/README.md).
 
@@ -69,7 +69,7 @@ Pin resolution on migrate (messages say **pin applied** vs **override used**):
 - **MariaDB** — current project pin, then `DEFAULT_MARIADB_IMAGE`, then `--mariadb-image`
 - **Overrides** — `--wordpress-image`, `--mariadb-image`, `--php` win over detect/defaults when you must diverge
 
-Menu migrate: dry-run proposal first, then optional Hub/placeholder overrides (Enter keeps the proposal).
+Menu migrate: choose project from the list → dry-run proposal first, then optional Hub/placeholder overrides (Enter keeps the proposal).
 
 ### What `--yes` writes / does
 

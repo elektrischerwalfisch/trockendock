@@ -11,8 +11,8 @@ cd "$TROCKENDOCK_ROOT"
 ./start-menu.sh
 ```
 
-- **WordPress** → **Image bump** — optional WP core / PHP / MariaDB (empty Enter = keep current); dry-run first, then confirm apply (`--yes`)
-- **Static PHP** → **Image bump** — PHP minor; dry-run first, then confirm apply
+- **WordPress** → **Image bump** — choose project from the list → optional WP core / PHP / MariaDB (empty Enter = keep current); dry-run first, then confirm apply (`--yes`)
+- **Static PHP** → **Image bump** — choose project from the list → PHP minor; dry-run first, then confirm apply
 
 Hub tag links and format placeholders match create/migrate pin UX ([`../getting-started.md`](../getting-started.md#menu-image-pin-ux)).
 

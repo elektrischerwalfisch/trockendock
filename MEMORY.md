@@ -7,18 +7,20 @@
 
 ## Current Status
 
-**Date**: 2026-11-25
+**Date**: 2026-11-26
 **Phase**: Phase 2 · Hardening & polish
 
-**Working on**: Pin lifecycle **#3** link hub configured versions — package done locally (closing comment drafted). Await **close worklog** / **close github issue**. Next = Phase 2 · C.
+**Working on**: Phase 2 · D — #6 menu project picker (implemented; close worklog / commit when asked). Next TUI: #4 ownership switch.
 
 **Next steps**:
 - [x] 1) Pin on create/migrate (`docs/issue-worklogs/done/pin-stack-image-versions-on-create-migrate.md`) — local worklog closed 2026-11-25
 - [x] 2) Guided image bump CLI + menu (`docs/issue-worklogs/done/guided-image-version-bump.md`) — local worklog closed 2026-11-25; GitHub #2 close when asked
-- [x] 3) Hub configured versions + run state (`docs/issue-worklogs/active/show-link-hub-configured-versions.md`) — package done; closing comment ready; local/GitHub close when asked
+- [x] 3) Hub configured versions + run state (`docs/issue-worklogs/done/show-link-hub-configured-versions.md`) — local worklog closed 2026-11-25; GitHub #3 close when asked
 - [x] Smoke tests for stack CLIs (Phase 2 · A — pin suite under `tests/smoke-*.sh`)
 - [ ] Slim-fill `docs/ARCHITECTURE.md` gaps (Phase 2 · C)
-- [ ] Optional TUI polish only for concrete friction (Phase 2 · D)
+- [x] #6 Menu pick existing project (`docs/issue-worklogs/active/menu-pick-existing-project.md`) — wired; **close worklog** / commit when asked
+- [ ] Optional TUI polish (Phase 2 · D) — next: [`docs/issue-worklogs/unassigned/menu-wp-content-ownership-switch.md`](docs/issue-worklogs/unassigned/menu-wp-content-ownership-switch.md) (#4)
+- [ ] Backlog: validate image pins exist on Hub/registry ([`docs/issue-worklogs/unassigned/validate-docker-image-pins-exist.md`](docs/issue-worklogs/unassigned/validate-docker-image-pins-exist.md)) (#5)
 
 ---
 
@@ -69,6 +71,11 @@
 - 2026-11-25 #3: hub system meta only `wordpress` / `static/php` (mailhog via link, not label)
 - 2026-11-25 #3 docs: `port-convention.md` link-hub card contents + pin lifecycle cross-links; getting-started pointer
 - 2026-11-25 #3: manual hub regen smoke (running+stopped); MEMORY/ROADMAP package done; closing comment drafted
+- 2026-11-25 #3 **close worklog** → `docs/issue-worklogs/done/`; Next = Phase 2 · C
+- 2026-11-25 Worklog (unassigned): menu WP `wp-content` ownership switch (www-data ↔ host)
+- 2026-11-25 Worklog (unassigned): validate Docker image pins exist before writing `.env`
+- 2026-11-26 Worklog (unassigned): menu project picker for existing-project dialogs
+- 2026-11-26 #6: WP migrate/db/urls/bump + Static bump use `menu_pick_compose_project`; Create stays typed; docs + `bash -n`
 
 ---
 
