@@ -23,7 +23,7 @@ From `$TROCKENDOCK_ROOT`:
 ./start-menu.sh
 ```
 
-Numbered menus for WordPress, Static PHP, link hub refresh/open, Docker status, and start/stop/remove project stacks. Dialogs that target an **existing** stack (migrate, DB import, URL replace, image bump, Platform start/stop/down) use a numbered project list under `$WEBSITES_ROOT`; **Create project** still asks for a new folder name.
+Numbered menus for WordPress, Static PHP, link hub refresh/open, Docker status, and start/stop/remove/purge project stacks. Dialogs that target an **existing** stack (migrate, DB import, URL replace, image bump, Platform start/stop/down/purge) use a numbered project list under `$WEBSITES_ROOT`; **Create project** still asks for a new folder name.
 
 ### Menu image-pin UX
 
@@ -54,19 +54,28 @@ export PATH="${TROCKENDOCK_ROOT}/stacks/wordpress/bin:${TROCKENDOCK_ROOT}/stacks
 
 ## Daily commands
 
-**Prefer the interactive menu** for hub refresh/open and start/stop/down:
+**Prefer the interactive menu** for hub refresh/open and start/stop/down/purge:
 
 ```bash
 ./start-menu.sh
 ```
 
-→ Platform → Refresh / Open link hub · Start / Stop project · Remove stack.
+→ Platform → Refresh / Open link hub · Start / Stop project · Remove stack · Purge project.
+
+| Action        | What it removes                                                                                          | Menu                       |
+| ------------- | -------------------------------------------------------------------------------------------------------- | -------------------------- |
+| Stop          | Nothing (containers pause)                                                                               | Platform → Stop project    |
+| Remove stack  | Containers + Compose network only (`docker compose down`, **no** `-v`)                                   | Platform → Remove stack    |
+| Purge project | Named DB volume `${PROJECT_SLUG}_db_data` (if present) **and** the project folder under `$WEBSITES_ROOT` | Platform → Purge project   |
+
+Purge requires the stack to be fully down already (Remove stack first). It never runs `compose down` itself. Double confirm: `[y/N]` then type the folder name. CLI: `bin/project-purge.sh --project <folder> --dry-run` / `--yes`.
 
 CLI equivalent — from any **project folder**:
 
 ```bash
 docker compose up -d
 docker compose stop
+docker compose down       # Remove stack equivalent (keeps volumes + folder)
 docker compose logs -f
 ```
 

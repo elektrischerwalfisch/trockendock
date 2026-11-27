@@ -35,6 +35,7 @@ Requires a working `config/paths.env` (or `.example` fallback via `load-config.s
 | `smoke-wp-stack-image-bump.sh` | `wp-stack image bump` dry-run + `--yes --skip-compose` write/unset |
 | `smoke-static-stack-image-bump.sh` | `static-stack image bump` dry-run + `--yes --skip-compose` write/unset |
 | `smoke-wp-stack-wp-content-owner.sh` | `wp-content owner` status + toggle dry-run; menu wiring; no sudo `--yes` |
+| `smoke-project-purge.sh` | `project-purge` dry-run + `--yes` fixture; path refuse; `bash -n` menu |
 
 ## Conventions
 

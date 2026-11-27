@@ -30,7 +30,7 @@ After completing any piece of work, complete the relevant items below in the sam
 | Current Phase | **Phase 2 · Hardening & polish**        |
 | Next Phase    | Phase 3 · TBD                           |
 | Live Version  | `1.0.0` (see `VERSION`)                 |
-| Last Updated  | 2026-11-25                              |
+| Last Updated  | 2026-11-27                              |
 
 ---
 
@@ -56,7 +56,7 @@ After completing any piece of work, complete the relevant items below in the sam
 | — | Pin lifecycle #2 (guided image bump CLI + menu + docs + hub refresh) | Done locally (`docs/issue-worklogs/done/guided-image-version-bump.md`); GitHub #2 close when asked |
 | — | Pin lifecycle #3 (link hub configured versions + run state) | Done locally (`docs/issue-worklogs/done/show-link-hub-configured-versions.md`); GitHub #3 close when asked |
 | C | Slim-fill `docs/ARCHITECTURE.md` gaps from operator knowledge | Open — **Next** |
-| D | TUI polish only for concrete menu bugs/friction | Done for #6 + #4 (GitHub closed); optional further friction as it appears |
+| D | TUI polish only for concrete menu bugs/friction | Done for #6 + #4 + Platform purge (local worklog closed); optional further friction as it appears |
 
 **Definition of Done**:
 - [ ] Agreed items checked off or explicitly deferred to Phase 3

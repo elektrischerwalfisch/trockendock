@@ -81,9 +81,11 @@ docker compose up -d
 # phpMyAdmin / Mailhog on their ports from .env
 docker compose stop    # pause
 docker compose start   # resume
-docker compose down    # remove containers, keep volumes
-docker compose down -v # full reset (destructive)
+docker compose down    # remove containers, keep volumes + folder (menu: Platform → Remove stack)
+docker compose down -v # wipe named volumes too (folder remains — prefer menu Purge for folder+volume)
 ```
+
+**Remove vs Purge (menu):** Remove stack = `compose down` only. Purge project (after Remove) deletes `${PROJECT_SLUG}_db_data` and the project folder — see [`../getting-started.md`](../getting-started.md#daily-commands).
 
 Daily Compose / hub: [`../getting-started.md`](../getting-started.md#daily-commands). Image bump: [`image-bump.md`](image-bump.md). Ownership (`wp-content` www-data ↔ host): [`getting-started.md`](getting-started.md#ownership-wp-content).
 

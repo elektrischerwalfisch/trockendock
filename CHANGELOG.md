@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- feat: add Platform purge for project folder and DB volume
 - feat: prompt for WP table prefix on create and clarify stack-defaults examples
 
 ## 1.1.0 - 2026-11-26

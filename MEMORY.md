@@ -7,10 +7,10 @@
 
 ## Current Status
 
-**Date**: 2026-11-26
+**Date**: 2026-11-27
 **Phase**: Phase 2 · Hardening & polish
 
-**Working on**: Phase 2 · C — slim-fill `docs/ARCHITECTURE.md`, or backlog [#5](https://github.com/elektrischerwalfisch/trockendock/issues/5) validate image pins exist.
+**Working on**: Phase 2 · C — slim-fill `docs/ARCHITECTURE.md`, or backlog Multisite convert / [#5](https://github.com/elektrischerwalfisch/trockendock/issues/5).
 
 **Next steps**:
 - [x] 1) Pin on create/migrate (`docs/issue-worklogs/done/pin-stack-image-versions-on-create-migrate.md`) — local worklog closed 2026-11-25
@@ -20,6 +20,8 @@
 - [ ] Slim-fill `docs/ARCHITECTURE.md` gaps (Phase 2 · C)
 - [x] #6 Menu pick existing project (`docs/issue-worklogs/done/menu-pick-existing-project.md`) — local + GitHub closed 2026-11-26
 - [x] #4 Menu WP `wp-content` ownership switch (`docs/issue-worklogs/done/menu-wp-content-ownership-switch.md`) — local + GitHub closed 2026-11-26
+- [x] Platform purge project (`docs/issue-worklogs/done/menu-purge-project.md`) — local worklog closed 2026-11-27; commit when asked
+- [ ] Backlog: Multisite convert via menu/CLI ([`docs/issue-worklogs/unassigned/menu-multisite-convert.md`](docs/issue-worklogs/unassigned/menu-multisite-convert.md))
 - [ ] Backlog: validate image pins exist on Hub/registry ([`docs/issue-worklogs/unassigned/validate-docker-image-pins-exist.md`](docs/issue-worklogs/unassigned/validate-docker-image-pins-exist.md)) (#5)
 
 ---
@@ -80,6 +82,10 @@
 - 2026-11-26 #4: `wp-stack wp-content owner` (status/toggle/set) + menu toggle UX; smoke + docs menu-first
 - 2026-11-26 #4 **close worklog** → `docs/issue-worklogs/done/`; **close github issue** #4; Next = Phase 2 · C or #5
 - 2026-11-27 WP create: menu + CLI `--table-prefix` → `WP_TABLE_PREFIX` (default `wp_`)
+- 2026-11-27 Worklog (unassigned): menu + CLI Multisite convert for fresh sites
+- 2026-11-27 Worklog (unassigned): Platform purge project (folder + DB volume after Remove)
+- 2026-11-27 Platform purge: `bin/project-purge.sh` + menu item 7; Remove vs Purge docs; `tests/smoke-project-purge.sh` green; worklog → `active/`
+- 2026-11-27 Platform purge **close worklog** → `docs/issue-worklogs/done/`; Next = Phase 2 · C or Multisite convert / #5
 
 ---
 

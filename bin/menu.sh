@@ -17,6 +17,7 @@ source "${ROOT}/stacks/lib/stack-image-pins.sh"
 WP_STACK="${ROOT}/stacks/wordpress/bin/wp-stack"
 STATIC_STACK="${ROOT}/stacks/static-php/bin/static-stack"
 DOCKER_STATUS="${ROOT}/bin/docker-container-status.sh"
+PROJECT_PURGE="${ROOT}/bin/project-purge.sh"
 
 menu_pause() {
   echo
@@ -616,7 +617,8 @@ menu_platform_docker_status() {
 }
 
 # Populate MENU_PROJECT_DIRS with absolute project paths (compose projects under WEBSITES_ROOT).
-# Optional filter: "running" | "stopped" | "all" (default).
+# Optional filter: "running" | "stopped" | "down" | "all" (default).
+# "down" = no Compose containers left (already compose down) — required for purge.
 menu_collect_compose_projects() {
   local filter="${1:-all}"
   local project_dir state
@@ -626,12 +628,22 @@ menu_collect_compose_projects() {
     [[ -d "$project_dir" ]] || continue
     [[ -f "${project_dir}docker-compose.yml" ]] || continue
     project_dir="${project_dir%/}"
-    if [[ "$filter" != "all" ]]; then
+    if [[ "$filter" == "down" ]]; then
+      menu_compose_has_containers "$project_dir" && continue
+    elif [[ "$filter" != "all" ]]; then
       state="$(menu_compose_project_state "$project_dir")"
       [[ "$state" == "$filter" ]] || continue
     fi
     MENU_PROJECT_DIRS+=("$project_dir")
   done
+}
+
+# True when any Compose containers still exist (running or stopped) — after stop, before down.
+menu_compose_has_containers() {
+  local dir="$1"
+  local ids=""
+  ids="$(docker compose -f "${dir}/docker-compose.yml" --project-directory "$dir" ps -aq 2>/dev/null || true)"
+  [[ -n "$ids" ]]
 }
 
 menu_compose_project_state() {
@@ -646,7 +658,7 @@ menu_compose_project_state() {
 }
 
 # Sets MENU_SELECTED_PROJECT to the chosen absolute path, or empty if cancelled.
-# Args: title, optional filter ("running" | "stopped" | "all").
+# Args: title, optional filter ("running" | "stopped" | "down" | "all").
 menu_pick_compose_project() {
   local title="$1"
   local filter="${2:-all}"
@@ -659,6 +671,7 @@ menu_pick_compose_project() {
     case "$filter" in
       running) empty_msg="No running projects under \$WEBSITES_ROOT." ;;
       stopped) empty_msg="No stopped projects under \$WEBSITES_ROOT." ;;
+      down) empty_msg="No fully removed stacks under \$WEBSITES_ROOT (compose down first via Remove stack)." ;;
       *) empty_msg="No projects with docker-compose.yml under \$WEBSITES_ROOT." ;;
     esac
     echo "$empty_msg"
@@ -742,6 +755,51 @@ menu_compose_down() {
     down
 }
 
+menu_compose_purge() {
+  local name typed
+  menu_pick_compose_project "Purge project (folder + DB volume; stack already down)" "down"
+  [[ -n "${MENU_SELECTED_PROJECT:-}" ]] || return 0
+  name="$(basename "$MENU_SELECTED_PROJECT")"
+
+  echo
+  if ! "$PROJECT_PURGE" --project "$name" --dry-run; then
+    menu_pause
+    return 0
+  fi
+  echo
+  echo "This permanently deletes the project folder and the named DB volume (if present)."
+  echo "Remove stack (compose down) only removes containers — Purge is the destructive step."
+  echo
+  if ! menu_confirm_yes "Continue with purge for ${name}"; then
+    echo "Cancelled."
+    menu_pause
+    return 0
+  fi
+  echo
+  read -r -p "Final confirmation — type the project name \"${name}\" to proceed: " typed
+  if [[ "$typed" != "$name" ]]; then
+    echo "Name did not match. Cancelled."
+    menu_pause
+    return 0
+  fi
+
+  echo
+  echo "→ ${PROJECT_PURGE} --project ${name} --yes"
+  echo
+  if "$PROJECT_PURGE" --project "$name" --yes; then
+    echo
+    echo "Optional: orphan DB volumes (no matching project folder):"
+    "$PROJECT_PURGE" --list-orphans || true
+    echo
+    echo "Refresh the link hub when convenient (Platform → Refresh link hub)."
+    menu_pause
+    return 0
+  fi
+  echo
+  echo "trockendock-menu: purge failed or partial — see messages above."
+  menu_pause
+}
+
 menu_platform() {
   local choice
   while true; do
@@ -755,6 +813,7 @@ Platform
   4) Start project (docker compose up -d)
   5) Stop project (docker compose stop)
   6) Remove stack (docker compose down)
+  7) Purge project (delete folder + DB volume)
   0) Back
 
 EOF
@@ -783,6 +842,9 @@ EOF
         ;;
       6)
         menu_compose_down
+        ;;
+      7)
+        menu_compose_purge
         ;;
       0|"") return 0 ;;
       *) echo "Unknown choice: ${choice}" ;;
