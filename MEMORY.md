@@ -79,6 +79,7 @@
 - 2026-11-26 #6 **close worklog** → `docs/issue-worklogs/done/`; **close github issue** #6; Next = #4 ownership switch
 - 2026-11-26 #4: `wp-stack wp-content owner` (status/toggle/set) + menu toggle UX; smoke + docs menu-first
 - 2026-11-26 #4 **close worklog** → `docs/issue-worklogs/done/`; **close github issue** #4; Next = Phase 2 · C or #5
+- 2026-11-27 WP create: menu + CLI `--table-prefix` → `WP_TABLE_PREFIX` (default `wp_`)
 
 ---
 

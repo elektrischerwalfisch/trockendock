@@ -22,6 +22,7 @@ Image pins (required unless set in config/stack-defaults.env):
 Options:
   --slug <name>         PROJECT_SLUG in .env (default: folder name)
   --theme <slug>        Theme folder in wp-content/themes/ (default: folder name)
+  --table-prefix <pfx>  WP_TABLE_PREFIX in .env (default: wp_)
   --source-url <url>    Optional live site URL → MIGRATION_SOURCE_URL (link hub)
   --dry-run             Print actions without creating files
   --no-index            Skip generate-local-dev-index.sh
@@ -35,14 +36,23 @@ Example:
   wp-stack project create kundin-a \
     --wordpress-image wordpress:6.4.3-php8.3-apache \
     --mariadb-image mariadb:10.11 \
+    --table-prefix wp_ \
     --source-url https://www.example.de \
     --slug kundin-a --theme kundin-a-theme
 EOF
 }
 
+wp_stack_validate_table_prefix() {
+  local prefix="$1"
+  if [[ ! "$prefix" =~ ^[A-Za-z0-9_]+$ ]]; then
+    wp_stack_die "invalid --table-prefix '${prefix}' (use letters, digits, underscore only, e.g. wp_ or oscr_)"
+  fi
+}
+
 wp_stack_project_create() {
   local folder="" slug="" theme_slug="" dry_run=0 skip_index=0
   local wordpress_image="" mariadb_image="" source_url=""
+  local table_prefix="wp_"
 
   if [[ $# -eq 0 ]]; then
     wp_stack_project_create_usage
@@ -63,6 +73,11 @@ wp_stack_project_create() {
       --theme)
         [[ $# -ge 2 ]] || wp_stack_die "--theme requires a value"
         theme_slug="$2"
+        shift 2
+        ;;
+      --table-prefix)
+        [[ $# -ge 2 ]] || wp_stack_die "--table-prefix requires a value"
+        table_prefix="$2"
         shift 2
         ;;
       --wordpress-image)
@@ -103,6 +118,7 @@ wp_stack_project_create() {
 
   [[ -n "$folder" ]] || wp_stack_die "missing folder name"
   wp_stack_validate_folder_name "$folder"
+  wp_stack_validate_table_prefix "$table_prefix"
 
   slug="${slug:-$folder}"
   theme_slug="${theme_slug:-$folder}"
@@ -138,6 +154,7 @@ wp_stack_project_create() {
     echo "  slug:             ${slug}"
     echo "  WORDPRESS_IMAGE:  ${wordpress_image}"
     echo "  MARIADB_IMAGE:    ${mariadb_image}"
+    echo "  WP_TABLE_PREFIX:  ${table_prefix}"
     echo "  MIGRATION_SOURCE_URL: ${source_url:-'(unset)'}"
     echo "  port block:       ${block}x (WP ${WP_PORT}, PMA ${PMA_PORT}, Mailhog UI ${MAILHOG_UI_PORT}, SMTP ${MAILHOG_SMTP_PORT})"
     echo "  theme slug:       ${theme_slug}"
@@ -152,6 +169,7 @@ wp_stack_project_create() {
   trockendock_set_env_var "${target_dir}" PROJECT_SLUG "${slug}"
   trockendock_set_env_var "${target_dir}" WORDPRESS_IMAGE "${wordpress_image}"
   trockendock_set_env_var "${target_dir}" MARIADB_IMAGE "${mariadb_image}"
+  trockendock_set_env_var "${target_dir}" WP_TABLE_PREFIX "${table_prefix}"
   trockendock_set_env_var "${target_dir}" WP_PORT "${WP_PORT}"
   trockendock_set_env_var "${target_dir}" PMA_PORT "${PMA_PORT}"
   trockendock_set_env_var "${target_dir}" MAILHOG_UI_PORT "${MAILHOG_UI_PORT}"
@@ -172,6 +190,7 @@ wp_stack_project_create() {
   echo "  PROJECT_SLUG:    ${slug}"
   echo "  WORDPRESS_IMAGE: ${wordpress_image}"
   echo "  MARIADB_IMAGE:   ${mariadb_image}"
+  echo "  WP_TABLE_PREFIX: ${table_prefix}"
   if [[ -n "$source_url" ]]; then
     echo "  MIGRATION_SOURCE_URL: ${source_url}"
   fi

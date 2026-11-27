@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- feat: prompt for WP table prefix on create and clarify stack-defaults examples
+
 ## 1.1.0 - 2026-11-26
 
 - chore: bump version to 1.1.0

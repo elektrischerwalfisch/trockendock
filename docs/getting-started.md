@@ -29,11 +29,11 @@ Numbered menus for WordPress, Static PHP, link hub refresh/open, Docker status, 
 
 Create (and migrate pin overrides) never invent Hub-“latest” versions. Prompts use **format placeholders** plus Docker Hub tag links; **Enter** applies local soft defaults only when `config/stack-defaults.env` is set — otherwise you must type pins.
 
-| Flow                         | Prompts                                    | Hub links                                                                                                        | Enter means                                                  |
-| ---------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| WordPress create             | WP core, PHP minor, MariaDB minor          | [wordpress/tags](https://hub.docker.com/_/wordpress/tags), [mariadb/tags](https://hub.docker.com/_/mariadb/tags) | `DEFAULT_WORDPRESS_IMAGE` / `DEFAULT_MARIADB_IMAGE` when set |
-| Static PHP create            | PHP minor (→ `PHP_IMAGE=php:<x.y>-apache`) | [php/tags](https://hub.docker.com/_/php/tags)                                                                    | `DEFAULT_PHP_IMAGE` when set                                 |
-| WordPress migrate (optional) | Same placeholders after dry-run proposal   | Same as WP create                                                                                                | Keep auto proposal (detect / current / defaults)             |
+| Flow                         | Prompts                                                       | Hub links                                                                                                        | Enter means                                                  |
+| ---------------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| WordPress create             | Table prefix (Enter=`wp_`), WP core, PHP minor, MariaDB minor | [wordpress/tags](https://hub.docker.com/_/wordpress/tags), [mariadb/tags](https://hub.docker.com/_/mariadb/tags) | `DEFAULT_WORDPRESS_IMAGE` / `DEFAULT_MARIADB_IMAGE` when set |
+| Static PHP create            | PHP minor (→ `PHP_IMAGE=php:<x.y>-apache`)                    | [php/tags](https://hub.docker.com/_/php/tags)                                                                    | `DEFAULT_PHP_IMAGE` when set                                 |
+| WordPress migrate (optional) | Same placeholders after dry-run proposal                      | Same as WP create                                                                                                | Keep auto proposal (detect / current / defaults)             |
 
 Optional live URL on create (WP + Static) and migrate gap-fill → `MIGRATION_SOURCE_URL` (hub **Live** link only when set). Soft defaults: [`../config/README.md`](../config/README.md). Later image bumps: [`wordpress/image-bump.md`](wordpress/image-bump.md). Migrate pin resolution: [`wordpress/migration.md`](wordpress/migration.md).
 

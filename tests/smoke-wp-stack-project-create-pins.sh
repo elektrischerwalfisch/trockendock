@@ -73,6 +73,45 @@ ok_create_with_flags() {
     cat /tmp/wp-create-smoke.out >&2
     exit 1
   }
+  grep -q "WP_TABLE_PREFIX:  wp_" /tmp/wp-create-smoke.out || {
+    echo "dry-run missing default WP_TABLE_PREFIX" >&2
+    cat /tmp/wp-create-smoke.out >&2
+    exit 1
+  }
+}
+
+ok_create_with_table_prefix() {
+  local project_dir="${WEBSITES_ROOT}/${FOLDER}"
+  rm -rf "${project_dir}"
+  "${WP_STACK}" project create "${FOLDER}" \
+    --wordpress-image "wordpress:6.4.3-php8.3-apache" \
+    --mariadb-image "mariadb:10.11" \
+    --table-prefix "oscr_" \
+    --no-index >/tmp/wp-create-smoke.out 2>/tmp/wp-create-smoke.err
+  grep -q '^WP_TABLE_PREFIX=oscr_$' "${project_dir}/.env" || {
+    echo "expected WP_TABLE_PREFIX=oscr_ in .env" >&2
+    cat /tmp/wp-create-smoke.out /tmp/wp-create-smoke.err >&2
+    grep WP_TABLE_PREFIX "${project_dir}/.env" >&2 || true
+    rm -rf "${project_dir}"
+    exit 1
+  }
+  rm -rf "${project_dir}"
+}
+
+fail_invalid_table_prefix() {
+  if "${WP_STACK}" project create "${FOLDER}" \
+    --wordpress-image "wordpress:6.4.3-php8.3-apache" \
+    --mariadb-image "mariadb:10.11" \
+    --table-prefix "bad-prefix!" \
+    --dry-run >/tmp/wp-create-smoke.out 2>/tmp/wp-create-smoke.err; then
+    echo "expected invalid --table-prefix to fail" >&2
+    exit 1
+  fi
+  grep -q "invalid --table-prefix" /tmp/wp-create-smoke.err || {
+    echo "expected invalid --table-prefix error" >&2
+    cat /tmp/wp-create-smoke.err >&2
+    exit 1
+  }
 }
 
 ok_create_from_defaults() {
@@ -108,8 +147,10 @@ ok_create_with_source_url() {
 
 fail_create_without_pins
 fail_floating_wordpress_tag
+fail_invalid_table_prefix
 ok_create_with_flags
 ok_create_from_defaults
 ok_create_with_source_url
+ok_create_with_table_prefix
 
 echo "smoke-wp-stack-project-create-pins: ok"

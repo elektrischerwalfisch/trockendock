@@ -23,11 +23,12 @@ cd "$TROCKENDOCK_ROOT"
 ./stacks/wordpress/bin/wp-stack project create <folder> \
   --wordpress-image wordpress:<WP>-php<PHP>-apache \
   --mariadb-image mariadb:<x.y> \
+  [--table-prefix wp_] \
   [--theme <theme-slug>] \
   [--source-url https://www.example.de]
 ```
 
-This copies the template, writes `.env` (pins, next free `80Nx` port block, DB passwords), and regenerates the link hub. Then:
+This copies the template, writes `.env` (pins, `WP_TABLE_PREFIX`, next free `80Nx` port block, DB passwords), and regenerates the link hub. Menu Create asks for the table prefix (Enter = `wp_`). Then:
 
 ```bash
 cd "${WEBSITES_ROOT}/<folder>"

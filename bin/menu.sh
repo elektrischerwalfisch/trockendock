@@ -150,7 +150,7 @@ EOF
 }
 
 menu_wordpress_create() {
-  local folder theme source_url=""
+  local folder theme source_url="" table_prefix=""
   local def_wp="" def_php="" def_mdb="" parts
   local wp_core php_minor mariadb_minor wordpress_image mariadb_image
   local create_args=()
@@ -158,6 +158,7 @@ menu_wordpress_create() {
   folder="$(menu_prompt "Project folder name under \$WEBSITES_ROOT")"
   [[ -n "$folder" ]] || return 0
   theme="$(menu_prompt "Theme slug (empty = folder name)")"
+  table_prefix="$(menu_prompt_pin "Table prefix" "wp_" "wp_")"
 
   if [[ -n "${DEFAULT_WORDPRESS_IMAGE:-}" ]]; then
     if parts="$(trockendock_parse_wordpress_image_parts "$DEFAULT_WORDPRESS_IMAGE")"; then
@@ -198,7 +199,7 @@ EOF
     return 0
   fi
 
-  create_args=(project create "$folder" --wordpress-image "$wordpress_image" --mariadb-image "$mariadb_image")
+  create_args=(project create "$folder" --wordpress-image "$wordpress_image" --mariadb-image "$mariadb_image" --table-prefix "$table_prefix")
   if [[ -n "$theme" ]]; then
     create_args+=(--theme "$theme")
   fi

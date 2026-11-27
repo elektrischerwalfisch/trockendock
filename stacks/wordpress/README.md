@@ -38,6 +38,7 @@ export PATH="${TROCKENDOCK_ROOT}/stacks/wordpress/bin:$PATH"
 wp-stack project create <folder> \
   --wordpress-image wordpress:<WP>-php<PHP>-apache \
   --mariadb-image mariadb:<x.y> \
+  [--table-prefix wp_] \
   [--source-url https://www.example.de] \
   [--slug <slug>] [--theme <theme-slug>] [--dry-run]
 ```
